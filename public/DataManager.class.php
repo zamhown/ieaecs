@@ -1,4 +1,5 @@
 <?php
+include_once(dirname(__FILE__).'/../config/conf.php');
 set_time_limit(0);
 
 class DataManager{
@@ -6,10 +7,10 @@ class DataManager{
     private $sttmt;
 
     function __construct(){
-        $host = 'localhost';
-        $dbname = 'zb';
-        $username = 'root';
-        $password = '816817';
+        $host = DB_HOST;
+        $dbname = DB_NAME;
+        $username = DB_USER_NAME;
+        $password = DB_PASSWORD;
         date_default_timezone_set('Asia/Chongqing');
         $this->pdo = new PDO("mysql:dbname=$dbname;host=$host", $username, $password);
         $this->execute("SET NAMES 'UTF8'");

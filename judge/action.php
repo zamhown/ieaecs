@@ -1,6 +1,6 @@
 <?php
-include_once('public.php');
-include_once('DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/public.php');
+include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $db = new DataManager();
 
@@ -9,7 +9,7 @@ function nextBatch($db){
     $data = $db->nextPlaceholder($_SESSION['userId'], $_SESSION['userProps'], 100);
     if($data===false){
         echo "没有需要检测的数据！";
-        echo '<br><br><a href="index.php">返回</a>';
+        echo '<br><br><a href="../index.php">返回</a>';
         exit();
     }
     $_SESSION['batch'] = $data;
@@ -69,6 +69,6 @@ if(isset($_GET['clear'])){
 
 // 分配下一个
 $t = nextTarget($db);
-header("Location: judge.php?phid=".$t['id']);
+header("Location: check.php?phid=".$t['id']);
 $db->close();
 ?>

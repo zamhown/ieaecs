@@ -1,11 +1,11 @@
 <?php
-include_once('DataManager.class.php');
+include_once(dirname(__FILE__).'/public/DataManager.class.php');
 @session_start();
 
 $hasPost = isset($_POST['userName']) && $_POST['userName'];
 
 if(!$hasPost && !isset($_SESSION['userName'])){
-    header("Location: login.php");
+    header("Location: login.html");
     exit;
 }
 
@@ -26,7 +26,7 @@ $db->close();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta content="" name="keywords">
     <meta content="" name="description">
-    <title>肠癌诊断信息抽取准确性众包系统</title>
+    <title><?php echo TITLE ?></title>
     <meta name="apple-touch-fullscreen" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -46,11 +46,11 @@ $db->close();
 </head>
 
 <body style="text-align: center">
-    <h1>肠癌诊断信息抽取准确性众包系统</h1>
+    <h1><?php echo TITLE ?></h1>
     <hr>
     <p>欢迎<?php echo $_SESSION['userName'] ?>！你已检测<?php echo $userJudgeCount ?>条数据。</p>
     <p>请选择你擅长的属性类型：</p>
-    <form id="propForm" action="judge-action.php?clear=1" method="post">
+    <form id="propForm" action="judge/action.php?clear=1" method="post">
         <?php foreach($props as $p){ ?>
             <!-- name后加[]，这样php才能正确读取 -->
             <input type="checkbox" name="props[]" value="<?php echo $p['id'] ?>"
@@ -64,13 +64,13 @@ $db->close();
     </form>
     <br>
     <p>
-        <a href="judge-record.php">检测记录</a>&nbsp;&nbsp;&nbsp;
-        <a href="star-record.php">我的收藏</a>
+        <a href="user/judge-record.php">检测记录</a>&nbsp;&nbsp;&nbsp;
+        <a href="user/star-record.php">我的收藏</a>
     </p>
     <p>
         <a href="rank.php">高分榜</a>&nbsp;&nbsp;&nbsp;
-        <a href="data-input.php">数据录入</a>&nbsp;&nbsp;&nbsp;
-        <a href="login.php">重新登录</a>
+        <a href="data/input.php">数据录入</a>&nbsp;&nbsp;&nbsp;
+        <a href="login.html">重新登录</a>
     </p>
 </body>
 

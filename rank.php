@@ -1,6 +1,6 @@
 <?php
-include_once('public.php');
-include_once('DataManager.class.php');
+include_once(dirname(__FILE__).'/public/public.php');
+include_once(dirname(__FILE__).'/public/DataManager.class.php');
 
 $db = new DataManager();
 $rank = $db-> getUserRank();

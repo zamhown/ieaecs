@@ -1,18 +1,18 @@
 <?php
-include_once('public.php');
-include_once('DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/public.php');
+include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $hasGet = isset($_GET['phid']) && $_GET['phid'];
 $phId;$data;$prop;$res;$labels;$amendment;$userJudgeCount;
 
 if(!$hasGet){
-    header("Location: judge-action.php");
+    header("Location: action.php");
 }else{
     $db = new DataManager();
     $phId = intval($_GET['phid']);
     $ph = $db->getPlaceholderById($phId);
     if(!$ph){
-        header("Location: judge-action.php");
+        header("Location: action.php");
     }
 
     // 做记录以备返回上一条
@@ -85,11 +85,11 @@ if(!$hasGet){
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit">
-    <link href="css/public.css" type=text/css rel=stylesheet>
-    <link rel="stylesheet" href="remodal/remodal.css">
-    <link rel="stylesheet" href="remodal/remodal-default-theme.css">
+    <link href="../css/public.css" type=text/css rel=stylesheet>
+    <link rel="stylesheet" href="../lib/remodal/remodal.css">
+    <link rel="stylesheet" href="../lib/remodal/remodal-default-theme.css">
     <script src="//cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
-    <script src="remodal/remodal.min.js"></script>
+    <script src="../lib/remodal/remodal.min.js"></script>
     <style>
         p.data{
             text-align: left;
@@ -217,7 +217,7 @@ if(!$hasGet){
             </form>
         </section>
         <section class="section-judge">
-            <form id="judgeForm" action="judge-action.php" method="post">
+            <form id="judgeForm" action="action.php" method="post">
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="rlist" value="<?php echo json_encode(array_map(function($e){return intval($e['id']);}, $res)) ?>">
                 <h2>属性“<?php echo $prop['text'] ?>”已有<?php echo count($res) ?>种抽取结果</h2>
@@ -308,7 +308,7 @@ if(!$hasGet){
                             <td style="text-align:center">
                                 <?php if(count($_SESSION['record'])>1){ 
                                     $r = $_SESSION['record'][count($_SESSION['record'])-2]; ?>
-                                    <a href="judge-prev.php">上一个</a><br>
+                                    <a href="prev.php">上一个</a><br>
                                 <?php } ?>
                                 <input type="submit" value="提交，下一个">
                             </td>
@@ -322,11 +322,11 @@ if(!$hasGet){
     <hr>
     <p>
         你已检测<?php echo $userJudgeCount ?>条数据&nbsp;&nbsp;
-        <a href="judge-record.php">检测记录</a>&nbsp;&nbsp;
-        <a href="star-record.php">我的收藏</a>
+        <a href="../user/judge-record.php">检测记录</a>&nbsp;&nbsp;
+        <a href="../user/star-record.php">我的收藏</a>
     </p>
     <p>快捷键：←→：切换数据源，↑↓：选择检测结果，Enter：确定/提交</p>
-    <p><a href="index.php">返回</a></p>
+    <p><a href="../index.php">返回</a></p>
 
     <div class="remodal" data-remodal-id="modalAgree">
         <button data-remodal-action="close" class="remodal-close"></button>

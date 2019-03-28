@@ -1,6 +1,6 @@
 <?php
-include_once('public.php');
-include_once('DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/public.php');
+include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $db = new DataManager();
 $data = $db->getProps();
@@ -25,7 +25,7 @@ $db->close();
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="renderer" content="webkit">
-  <link href="css/public.css" type=text/css rel=stylesheet>
+  <link href="../css/public.css" type=text/css rel=stylesheet>
 </head>
 
 <body style="text-align: center">
@@ -49,13 +49,13 @@ $db->close();
                     <td><?php echo $i-- ?></td>
                     <td><?php echo $r['data_id'] ?></td>
                     <td style="width:50%">
-                        <a href="judge.php?phid=<?php echo $r['ph_id'] ?>">
+                        <a href="../judge/check.php?phid=<?php echo $r['ph_id'] ?>">
                             <?php echo $r['text'] ?>
                         </a>
                     </td>
                     <td><?php echo $props[$r['prop_id']] ?></td>
                     <td>
-                        <form action="toggle-star.php" method="post">
+                        <form action="../judge/toggle-star.php" method="post">
                             <input type="hidden" name="phId" value="<?php echo $r['ph_id'] ?>">
                             <input type="hidden" name="from" value="star-record">
                             <input type="submit" style="color:red;border:none;background:none;" value="取消收藏">
@@ -67,7 +67,7 @@ $db->close();
     </table>
     <br>
     <hr>
-    <p><a href="index.php">返回</a></p>
+    <p><a href="../index.php">返回</a></p>
 </body>
 
 </html>

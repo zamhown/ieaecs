@@ -1,6 +1,6 @@
 <?php
-include_once('public.php');
-include_once('DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/public.php');
+include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $db = new DataManager();
 $uploads = $db->getUserUploads($_SESSION['userId']);
@@ -18,11 +18,11 @@ $uploads = $db->getUserUploads($_SESSION['userId']);
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit">
-    <link href="css/public.css" type=text/css rel=stylesheet>
-    <link rel="stylesheet" href="remodal/remodal.css">
-    <link rel="stylesheet" href="remodal/remodal-default-theme.css">
+    <link href="../css/public.css" type=text/css rel=stylesheet>
+    <link rel="stylesheet" href="../lib/remodal/remodal.css">
+    <link rel="stylesheet" href="../lib/remodal/remodal-default-theme.css">
     <script src="//cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
-    <script src="remodal/remodal.min.js"></script>
+    <script src="../lib/remodal/remodal.min.js"></script>
 </head>
 
 <body style="text-align: center">
@@ -63,9 +63,9 @@ $uploads = $db->getUserUploads($_SESSION['userId']);
             foreach($uploads as $r){ 
                 $filename;
                 if($r['type']==1){
-                    $filename = "data/".$_SESSION['userId']."/".$r['filename'];
+                    $filename = "data-files/".$_SESSION['userId']."/".$r['filename'];
                 }else if($r['type']==2){
-                    $filename = "marked-data/".$_SESSION['userId']."/".$r['filename'];
+                    $filename = "marked-data-files/".$_SESSION['userId']."/".$r['filename'];
                 }
             ?>
                 <tr>
@@ -81,12 +81,12 @@ $uploads = $db->getUserUploads($_SESSION['userId']);
             <?php } ?>
         </tbody>
     </table>
-    <form id="formDel" action="data-del.php" method="post">
+    <form id="formDel" action="del-data.php" method="post">
         <input type="hidden" name="id" id="inputId">
     </form>
     <br>
     <hr>
-    <p><a href="index.php">返回</a></p>
+    <p><a href="../index.php">返回</a></p>
 
     <div class="remodal" data-remodal-id="modalWaiting" style="max-width: 400px">
         正在分析中，时间可能较长，请稍等……<br>

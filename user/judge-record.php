@@ -1,6 +1,6 @@
 <?php
-include_once('public.php');
-include_once('DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/public.php');
+include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $db = new DataManager();
 $data = $db->getLabels();
@@ -30,7 +30,7 @@ $db->close();
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="renderer" content="webkit">
-  <link href="css/public.css" type=text/css rel=stylesheet>
+  <link href="../css/public.css" type=text/css rel=stylesheet>
 </head>
 
 <body style="text-align: center">
@@ -56,7 +56,7 @@ $db->close();
                     <td style="width:50%"><?php echo $r['dtext'] ?></td>
                     <td><?php echo $props[$r['prop_id']] ?></td>
                     <td><?php echo $r['rtext'] ?></td>
-                    <td><a href="judge.php?phid=<?php echo $r['ph_id'] ?>">
+                    <td><a href="../judge/check.php?phid=<?php echo $r['ph_id'] ?>">
                         <?php echo $labels[$r['label_id']] ?>
                     </a></td>
                     <td><?php echo $r['time'] ?></td>
@@ -66,7 +66,7 @@ $db->close();
     </table>
     <br>
     <hr>
-    <p><a href="index.php">返回</a></p>
+    <p><a href="../index.php">返回</a></p>
 </body>
 
 </html>
