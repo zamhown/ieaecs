@@ -1,0 +1,74 @@
+<?php
+include_once('public.php');
+include_once('DataManager.class.php');
+
+$db = new DataManager();
+$rank = $db-> getUserRank();
+?>
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+    <title>高分榜</title>
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit">
+    <link href="css/public.css" type=text/css rel=stylesheet>
+    <script src="//cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
+</head>
+
+<body style="text-align: center">
+    <h1>高分榜</h1>
+    <hr>
+    <table style="margin: 10px auto">
+        <thead>
+            <tr>
+                <th>排名</th>
+                <th>用户名</th>
+                <th>检测条数</th>
+                <th>贡献条数</th>
+                <th>收到赞同</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $i = 1;
+            $sum = array(0,0,0);
+            foreach($rank as $r){
+                $sum[0]+=$r['jc'];
+                $sum[1]+=$r['rcount'];
+                $sum[2]+=$r['agree'];
+            ?>
+                <tr>
+                    <td <?php
+                        if($i<=3){
+                            echo 'style="color:red"';
+                        }
+                    ?>>
+                        <?php echo $i++ ?>
+                    </td>
+                    <td><?php echo $r['uname'] ?></td>
+                    <td><?php echo $r['jc'] ?></td>
+                    <td><?php echo $r['rcount'] ?></td>
+                    <td><?php echo $r['agree'] ?></td>
+                </tr>
+            <?php } ?>
+            <tr>
+                <td colspan="2">合计</td>
+                <td><?php echo $sum[0] ?></td>
+                <td><?php echo $sum[1] ?></td>
+                <td><?php echo $sum[2] ?></td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <hr>
+    <p><a href="index.php">返回</a></p>
+</body>
+
+</html>
