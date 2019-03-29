@@ -33,16 +33,18 @@ $rank = $db-> getUserRank();
                 <th>检测条数</th>
                 <th>贡献条数</th>
                 <th>收到赞同</th>
+                <th>赞同率</th>
             </tr>
         </thead>
         <tbody>
             <?php
             $i = 1;
-            $sum = array(0,0,0);
+            $sum = array(0,0,0,0);
             foreach($rank as $r){
                 $sum[0]+=$r['jc'];
                 $sum[1]+=$r['rcount'];
                 $sum[2]+=$r['agree'];
+                $sum[3]+=$r['disagree'];
             ?>
                 <tr>
                     <td <?php
@@ -56,6 +58,15 @@ $rank = $db-> getUserRank();
                     <td><?php echo $r['jc'] ?></td>
                     <td><?php echo $r['rcount'] ?></td>
                     <td><?php echo $r['agree'] ?></td>
+                    <td><?php
+                        $a = floatval($r['agree']);
+                        $b = floatval($r['disagree']);
+                        if($a+$b){
+                            echo round($a/($a+$b)*100,2).'%';
+                        }else{
+                            echo '-';
+                        }
+                    ?></td>
                 </tr>
             <?php } ?>
             <tr>
@@ -63,6 +74,15 @@ $rank = $db-> getUserRank();
                 <td><?php echo $sum[0] ?></td>
                 <td><?php echo $sum[1] ?></td>
                 <td><?php echo $sum[2] ?></td>
+                <td><?php
+                    $a = floatval($sum[2]);
+                    $b = floatval($sum[3]);
+                    if($a+$b){
+                        echo round($a/($a+$b)*100,2).'%';
+                    }else{
+                        echo '-';
+                    }
+                ?></td>
             </tr>
         </tbody>
     </table>

@@ -55,7 +55,15 @@ $data = $db->getResultInfo($_SESSION['userId']);
                     <td><?php echo $r['rcount'] ?></td>
                     <td><?php echo $r['agree'] ?></td>
                     <td><?php echo $r['disagree'] ?></td>
-                    <td><?php echo floatval($r['agree'])/(floatval($r['agree'])+floatval($r['disagree'])) ?></td>
+                    <td><?php
+                        $a = floatval($r['agree']);
+                        $b = floatval($r['disagree']);
+                        if($a+$b){
+                            echo round($a/($a+$b)*100,2).'%';
+                        }else{
+                            echo '-';
+                        }
+                    ?></td>
                 </tr>
             <?php } ?>
             <tr>
@@ -63,7 +71,15 @@ $data = $db->getResultInfo($_SESSION['userId']);
                 <td><?php echo $sum[0] ?></td>
                 <td><?php echo $sum[1] ?></td>
                 <td><?php echo $sum[2] ?></td>
-                <td><?php echo floatval($sum[1])/(floatval($sum[1])+floatval($sum[2])) ?></td>
+                <td><?php
+                    $a = floatval($sum[1]);
+                    $b = floatval($sum[2]);
+                    if($a+$b){
+                        echo round($a/($a+$b)*100,2).'%';
+                    }else{
+                        echo '-';
+                    }
+                ?></td>
             </tr>
         </tbody>
     </table>

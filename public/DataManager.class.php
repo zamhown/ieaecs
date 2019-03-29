@@ -324,6 +324,7 @@ class DataManager{
         foreach($data as &$u){
             $info = $this->getData("SELECT
             sum(result.agree_count) agree,
+            sum(result.disagree_count) disagree,
             count(user_result.id) rcount
             FROM user_result
             INNER JOIN result ON result.id=user_result.result_id
