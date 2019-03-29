@@ -70,6 +70,7 @@ $db->close();
     </p>
     <p>
         <a href="rank.php">高分榜</a>&nbsp;&nbsp;&nbsp;
+        <a href="diff-info.php">分歧处理情况</a>&nbsp;&nbsp;&nbsp;
         <a href="data/input.php">数据录入</a>&nbsp;&nbsp;&nbsp;
         <a href="login.html">重新登录</a>
     </p>

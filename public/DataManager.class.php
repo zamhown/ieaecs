@@ -364,6 +364,48 @@ class DataManager{
         return $data;
     }
 
+    public function getResultDiffInfo(){
+        // 寻找每个属性中有分歧的记录条数
+        $data = $this->getData("SELECT
+        ph.prop_id,
+        count(DISTINCT ph.id) dc
+        FROM placeholder ph
+        WHERE (SELECT
+            count(DISTINCT result.id)
+            FROM user_result
+            INNER JOIN result ON result.id=user_result.result_id
+            WHERE result.ph_id=ph.id)>1
+        GROUP BY ph.prop_id
+        ORDER BY dc DESC");
+
+        // 寻找每个属性有分歧的记录中，被打上某个标签的记录条数
+        foreach($data as &$p){
+            $propId = $p['prop_id'];
+            $info = $this->getData("SELECT
+            judge.label_id,
+            count(DISTINCT ph.id) uc
+            FROM placeholder ph
+            INNER JOIN result ON ph.id=result.ph_id
+            INNER JOIN user_result ON user_result.result_id=result.id
+            INNER JOIN judge ON judge.result_id=result.id
+            WHERE ph.prop_id=$propId
+            AND (SELECT
+                count(DISTINCT result.id)
+                FROM user_result
+                INNER JOIN result ON result.id=user_result.result_id
+                WHERE result.ph_id=ph.id)>1
+            GROUP BY judge.label_id");
+
+            $labelPhCount = array();
+            foreach($info as $r){
+                $labelPhCount[$r['label_id']] = $r['uc'];
+            }
+            $p['labelPhCount'] = $labelPhCount;
+        }
+        unset($p);
+        return $data;
+    }
+
     public function isStar($phId, $userId){
         $data = $this->getData("SELECT count(*) c FROM star WHERE ph_id=$phId AND `user_id`=$userId");
         return $data[0]['c']>0;
