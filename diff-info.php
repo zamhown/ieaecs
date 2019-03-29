@@ -56,8 +56,8 @@ $data = $db-> getResultDiffInfo();
                     <td><?php
                         $a = $r['labelPhCount']['1'];
                         $b = $r['dc'];
-                        if($a+$b){
-                            echo round($a/($a+$b)*100,2).'%';
+                        if($b){
+                            echo round($a/$b*100,2).'%';
                         }else{
                             echo '-';
                         }
@@ -71,8 +71,8 @@ $data = $db-> getResultDiffInfo();
                 <td><?php
                     $a = floatval($sum[1]);
                     $b = floatval($sum[0]);
-                    if($a+$b){
-                        echo round($a/($a+$b)*100,2).'%';
+                    if($b){
+                        echo round($a/$b*100,2).'%';
                     }else{
                         echo '-';
                     }
