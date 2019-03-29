@@ -1,5 +1,5 @@
 <?php
-$DEV = false;
+$DEV = true;
 if($DEV){
     define('DB_HOST', '222.204.216.24');
     define('DB_USER_NAME', 'root');
