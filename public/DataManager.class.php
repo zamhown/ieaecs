@@ -325,10 +325,9 @@ class DataManager{
             $info = $this->getData("SELECT
             sum(result.agree_count) agree,
             count(user_result.id) rcount
-            FROM `user`
-            INNER JOIN user_result ON user_result.user_id=`user`.id
+            FROM user_result
             INNER JOIN result ON result.id=user_result.result_id
-            WHERE `user`.id=".$u['id']);
+            WHERE user_result.user_id=".$u['id']);
             if($info[0]['agree']){
                 $u['agree']=$info[0]['agree'];
             }else{
@@ -341,6 +340,21 @@ class DataManager{
             }
         }
         unset($u);
+        return $data;
+    }
+
+    public function getResultInfo($userId){
+        $data = $this->getData("SELECT
+        placeholder.prop_id,
+        sum(result.agree_count) agree,
+        sum(result.disagree_count) disagree,
+        count(user_result.id) rcount
+        FROM user_result
+        INNER JOIN result ON result.id=user_result.result_id
+        INNER JOIN placeholder ON placeholder.id=result.ph_id
+        WHERE user_result.user_id=$userId
+        GROUP BY placeholder.prop_id
+        ORDER BY rcount DESC");
         return $data;
     }
 

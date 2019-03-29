@@ -65,7 +65,8 @@ $db->close();
     <br>
     <p>
         <a href="user/judge-record.php">检测记录</a>&nbsp;&nbsp;&nbsp;
-        <a href="user/star-record.php">我的收藏</a>
+        <a href="user/star-record.php">我的收藏</a>&nbsp;&nbsp;&nbsp;
+        <a href="user/results.php">我的抽取</a>
     </p>
     <p>
         <a href="rank.php">高分榜</a>&nbsp;&nbsp;&nbsp;
