@@ -334,6 +334,11 @@ class DataManager{
             }else{
                 $u['agree']=0;
             }
+            if($info[0]['disagree']){
+                $u['disagree']=$info[0]['disagree'];
+            }else{
+                $u['disagree']=0;
+            }
             if($info[0]['rcount']){
                 $u['rcount']=$info[0]['rcount'];
             }else{
