@@ -40,7 +40,7 @@ $db->close();
             text-align: left;
             margin: 0 auto;
             border: 1px solid #cccccc;
-            padding: 10px;
+            padding: 15px;
         }
     </style>
 </head>
