@@ -13,6 +13,7 @@ if(isset($_POST['id']) && $_POST['id']){
     }
     @unlink(iconv('utf-8', 'gb2312', $filename));
     $db->delUpload($_POST['id']);
+    $db->close();
 }
 header("Location: input.php");
 ?>

@@ -406,6 +406,65 @@ class DataManager{
         return $data;
     }
 
+    public function getJudgedDetail($userId, $propId, $type){
+        $data = $this->getData("SELECT 
+        `data`.id,
+        `data`.text dtext,
+        result.ph_id,
+        user_result.id urid,
+        result.text text,
+        label.text ltext,
+        GROUP_CONCAT(`user`.uname SEPARATOR ',') unames
+        FROM
+        `data`
+        INNER JOIN placeholder ON placeholder.data_id = `data`.id
+        INNER JOIN result ON placeholder.id = result.ph_id
+        INNER JOIN user_result ON result.id = user_result.result_id
+        INNER JOIN judge ON result.id = judge.result_id
+        INNER JOIN label ON label.id = judge.label_id
+        INNER JOIN `user` ON `user`.id = judge.user_id
+        WHERE
+        placeholder.prop_id = $propId AND user_result.user_id = $userId
+        AND label.type = $type
+        GROUP BY user_result.id, judge.label_id
+        ORDER BY user_result.id");
+
+        if(count($data)){
+            $a = array(array($data[0]));
+            for($i=1;$i<count($data);$i++){
+                if($data[$i]['urid']!=$a[count($a)-1][0]['urid']){
+                    array_push($a, array());
+                }
+                array_push($a[count($a)-1], $data[$i]);
+            }
+            return $a;
+        }else{
+            return array();
+        }
+    }
+
+    public function getResultDiffDetail($propId){
+        // 寻找某个属性中有分歧的所有标注结果和赞同率
+        $data = $this->getData("SELECT
+        `data`.id,
+        `data`.text,
+        `user`.uname,
+        result.text rtext,
+        result.agree_count*1.0/(result.agree_count+result.disagree_count) agree_radio
+        FROM placeholder ph
+        INNER JOIN `data` ON `data`.id=ph.data_id
+        INNER JOIN result ON result.ph_id=ph.id
+        INNER JOIN user_result ON user_result.result_id=result.id
+        INNER JOIN `user` ON `user`.id=user_result.user_id
+        WHERE (SELECT
+            count(DISTINCT result.id)
+            FROM user_result
+            INNER JOIN result ON result.id=user_result.result_id
+            WHERE result.ph_id=ph.id)>1
+        AND ph.prop_id=$propId");
+        return $data;
+    }
+
     public function isStar($phId, $userId){
         $data = $this->getData("SELECT count(*) c FROM star WHERE ph_id=$phId AND `user_id`=$userId");
         return $data[0]['c']>0;

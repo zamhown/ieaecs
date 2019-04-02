@@ -9,6 +9,7 @@ foreach($data as $r){
     $props[$r['id']] = $r['text'];
 }
 $data = $db-> getResultDiffInfo();
+$db->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -38,6 +39,7 @@ $data = $db-> getResultDiffInfo();
                 <th>分歧条数</th>
                 <th>已处理条数</th>
                 <th>处理率</th>
+                <th>详细报告</th>
             </tr>
         </thead>
         <tbody>
@@ -62,6 +64,7 @@ $data = $db-> getResultDiffInfo();
                             echo '-';
                         }
                     ?></td>
+                    <td><a href="get-diff-detail.php?propid=<?php echo $r['prop_id'] ?>">导出csv</a></td>
                 </tr>
             <?php } ?>
             <tr>
@@ -77,6 +80,7 @@ $data = $db-> getResultDiffInfo();
                         echo '-';
                     }
                 ?></td>
+                <td>-</td>
             </tr>
         </tbody>
     </table>

@@ -27,6 +27,11 @@ function sql_escape($str){
     return str_replace("'", "\\'", str_replace("\\", "\\\\", $str));
 }
 
+// csv转义
+function csv_escape($str){
+    return '"'.str_replace('"', '""', $str).'"';
+}
+
 // 递归创建文件夹
 function create_folders($dir){
     return is_dir($dir) || (create_folders(dirname($dir)) && mkdir($dir, 0777));

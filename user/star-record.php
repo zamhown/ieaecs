@@ -48,7 +48,7 @@ $db->close();
                 <tr>
                     <td><?php echo $i-- ?></td>
                     <td><?php echo $r['data_id'] ?></td>
-                    <td style="width:50%">
+                    <td style="width:40%;text-align:left">
                         <a href="../judge/check.php?phid=<?php echo $r['ph_id'] ?>">
                             <?php echo $r['text'] ?>
                         </a>

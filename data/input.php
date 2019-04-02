@@ -4,6 +4,7 @@ include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $db = new DataManager();
 $uploads = $db->getUserUploads($_SESSION['userId']);
+$db->close();
 ?>
 <!DOCTYPE html>
 <html>

@@ -9,6 +9,7 @@ foreach($data as $r){
     $props[$r['id']] = $r['text'];
 }
 $data = $db->getResultInfo($_SESSION['userId']);
+$db->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -53,8 +54,12 @@ $data = $db->getResultInfo($_SESSION['userId']);
                     <td><?php echo $i++ ?></td>
                     <td><?php echo $props[$r['prop_id']] ?></td>
                     <td><?php echo $r['rcount'] ?></td>
-                    <td><?php echo $r['agree'] ?></td>
-                    <td><?php echo $r['disagree'] ?></td>
+                    <td><a href="judged-detail.php?propid=<?php echo $r['prop_id'] ?>&type=1">
+                        <?php echo $r['agree'] ?>
+                    </a></td>
+                    <td><a href="judged-detail.php?propid=<?php echo $r['prop_id'] ?>&type=2">
+                        <?php echo $r['disagree'] ?>
+                    </a></td>
                     <td><?php
                         $a = floatval($r['agree']);
                         $b = floatval($r['disagree']);

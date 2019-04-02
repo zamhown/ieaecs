@@ -53,9 +53,9 @@ $db->close();
             foreach($userJudges as $r){ ?>
                 <tr>
                     <td><?php echo $i-- ?></td>
-                    <td style="width:50%"><?php echo $r['dtext'] ?></td>
+                    <td style="width:40%;text-align:left"><?php echo $r['dtext'] ?></td>
                     <td><?php echo $props[$r['prop_id']] ?></td>
-                    <td><?php echo $r['rtext'] ?></td>
+                    <td style="width:20%"><?php echo $r['rtext'] ?></td>
                     <td><a href="../judge/check.php?phid=<?php echo $r['ph_id'] ?>">
                         <?php echo $labels[$r['label_id']] ?>
                     </a></td>
