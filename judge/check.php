@@ -426,6 +426,9 @@ if(!$hasGet){
                 $('a.label').removeClass('hover');
             })
 
+            // 默认第一行数据源选中
+            switchDataSource($('tr.trData').eq(0));
+
             $modalAgree = $('[data-remodal-id=modalAgree]');
             $modalDisagree = $('[data-remodal-id=modalDisagree]');
             $modalUncertain = $('[data-remodal-id=modalUncertain]');
