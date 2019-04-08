@@ -219,6 +219,9 @@ class DataManager{
 
     // 取用户未检测过的、有分歧的、已检测（不含不确定）人数最少的抽取结果
     public function nextPlaceholder($userId, $userProps, $type, $limit){
+        if(!$userProps || count($userProps)==0){
+            return false;
+        }
         $data = array();
         if($type==0){  // 默认
             $data = $this->getData("SELECT
