@@ -8,7 +8,7 @@ $props = array();
 foreach($data as $r){
     $props[$r['id']] = $r['text'];
 }
-$data = $db-> getResultDiffInfo();
+$data = $db-> getResultInstockInfo();
 $db->close();
 ?>
 <!DOCTYPE html>
@@ -18,7 +18,7 @@ $db->close();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta content="" name="keywords">
     <meta content="" name="description">
-    <title>消歧情况</title>
+    <title>入库情况</title>
     <meta name="apple-touch-fullscreen" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -29,15 +29,15 @@ $db->close();
 </head>
 
 <body style="text-align: center">
-    <h1>消歧情况</h1>
+    <h1>入库情况</h1>
     <hr>
     <table style="margin: 10px auto">
         <thead>
             <tr>
                 <th>序号</th>
                 <th>属性</th>
-                <th>分歧条数</th>
-                <th>已处理条数</th>
+                <th>待入库条数</th>
+                <th>已入库条数</th>
                 <th>处理率</th>
                 <th>详细报告</th>
             </tr>
@@ -67,7 +67,7 @@ $db->close();
                             echo '-';
                         }
                     ?></td>
-                    <td><a href="get-diff-detail.php?propid=<?php echo $r['prop_id'] ?>">导出csv</a></td>
+                    <td><a href="get-instock-detail.php?propid=<?php echo $r['prop_id'] ?>">导出csv</a></td>
                 </tr>
             <?php } ?>
             <tr>

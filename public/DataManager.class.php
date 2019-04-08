@@ -218,18 +218,44 @@ class DataManager{
     }
 
     // 取用户未检测过的、有分歧的、已检测（不含不确定）人数最少的抽取结果
-    public function nextPlaceholder($userId, $userProps, $limit){
-        $data = $this->getData("SELECT
-        placeholder.id,
-        count(DISTINCT user_result.result_id) uc,
-        sum(result.agree_count+result.disagree_count) hot
-        FROM result
-        INNER JOIN placeholder ON placeholder.id=result.ph_id
-        LEFT JOIN user_result ON user_result.result_id=result.id
-        WHERE placeholder.prop_id IN ($userProps)
-        AND (SELECT count(*) FROM judge WHERE result_id=result.id AND `user_id`=$userId)=0
-        GROUP BY placeholder.id
-        ORDER BY uc DESC, hot LIMIT $limit");
+    public function nextPlaceholder($userId, $userProps, $type, $limit){
+        $data = array();
+        if($type==0){  // 默认
+            $data = $this->getData("SELECT
+            placeholder.id,
+            count(DISTINCT user_result.result_id) uc,
+            sum(result.agree_count+result.disagree_count) hot
+            FROM result
+            INNER JOIN placeholder ON placeholder.id=result.ph_id
+            LEFT JOIN user_result ON user_result.result_id=result.id
+            WHERE placeholder.prop_id IN ($userProps)
+            AND (SELECT count(*) FROM judge WHERE result_id=result.id AND `user_id`=$userId)=0
+            GROUP BY placeholder.id
+            ORDER BY uc DESC, hot LIMIT $limit");
+        }else if($type==1){  // 检测分歧
+            $data = $this->getData("SELECT
+            placeholder.id,
+            count(DISTINCT user_result.result_id) uc,
+            sum(result.agree_count+result.disagree_count) hot
+            FROM result
+            INNER JOIN placeholder ON placeholder.id=result.ph_id
+            LEFT JOIN user_result ON user_result.result_id=result.id
+            WHERE placeholder.prop_id IN ($userProps)
+            AND (SELECT count(*) FROM judge WHERE result_id=result.id AND `user_id`=$userId)=0
+            GROUP BY placeholder.id HAVING uc > 1
+            ORDER BY uc DESC, hot LIMIT $limit");
+        }else if($type==2){  // 入库
+            $data = $this->getData("SELECT
+            placeholder.id,
+            count(DISTINCT user_result.result_id) uc
+            FROM result
+            INNER JOIN placeholder ON placeholder.id=result.ph_id
+            LEFT JOIN user_result ON user_result.result_id=result.id
+            WHERE placeholder.prop_id IN ($userProps)
+            AND (SELECT count(*) FROM judge WHERE result_id=result.id)=0
+            GROUP BY placeholder.id HAVING uc = 1
+            LIMIT $limit");
+        }
         if(count($data)){
             return $data;
         }else{
@@ -237,7 +263,7 @@ class DataManager{
         }
     }
 
-    public function addJudge($resultId, $userId, $labelId){
+    public function addJudge($resultId, $userId, $labelId, $instock){
         $labels = $this->getLabels();
         $labelTypes = array();
         foreach($labels as $l){
@@ -247,11 +273,12 @@ class DataManager{
 
         $rt = 0;
         $needUpdateResult = false;
-        $data = $this->getData("SELECT id, label_id FROM judge WHERE result_id=$resultId and `user_id`=$userId");
+        $data = $this->getData("SELECT * FROM judge WHERE result_id=$resultId and `user_id`=$userId");
         if(count($data)){
             $oldLabelId = intval($data[0]['label_id']);
-            if($oldLabelId != $li){
-                $rt = $this->changeData("UPDATE judge SET label_id=$labelId WHERE id=".$data[0]['id']);
+            $oldInstock = intval($data[0]['instock']);
+            if($oldLabelId != $li || $oldInstock != $instock){
+                $rt = $this->changeData("UPDATE judge SET label_id=$labelId AND instock=$instock WHERE id=".$data[0]['id']);
                 if($labelTypes[$oldLabelId] != $labelTypes[$li]){
                     if($labelTypes[$oldLabelId]==1){
                         $this->changeData("UPDATE result SET agree_count=agree_count-1 WHERE id=$resultId");
@@ -264,7 +291,7 @@ class DataManager{
                 }
             }
         }else{
-            $rt = $this->changeData("INSERT INTO judge (result_id, label_id, `user_id`) values($resultId, $labelId, $userId)");
+            $rt = $this->changeData("INSERT INTO judge (result_id, label_id, `user_id`, instock) values($resultId, $labelId, $userId, $instock)");
             $needUpdateResult = true;
         }
         if($needUpdateResult){
@@ -322,13 +349,15 @@ class DataManager{
         ORDER BY jc DESC");
 
         foreach($data as &$u){
+            $userId = $u['id'];
+            // 贡献条数与收到赞同、反对
             $info = $this->getData("SELECT
             sum(result.agree_count) agree,
             sum(result.disagree_count) disagree,
             count(user_result.id) rcount
             FROM user_result
             INNER JOIN result ON result.id=user_result.result_id
-            WHERE user_result.user_id=".$u['id']);
+            WHERE user_result.user_id=$userId");
             if($info[0]['agree']){
                 $u['agree']=$info[0]['agree'];
             }else{
@@ -344,6 +373,35 @@ class DataManager{
             }else{
                 $u['rcount']=0;
             }
+
+            // 消歧条数与入库条数
+            $info = $this->getData("SELECT
+            count(DISTINCT judge.id) jcount
+            FROM judge
+            INNER JOIN result ON result.id=judge.result_id
+            INNER JOIN placeholder ph ON ph.id=result.ph_id
+            WHERE judge.user_id=$userId
+            AND judge.label_id=1
+            AND (SELECT
+            count(DISTINCT result.id)
+            FROM user_result
+            INNER JOIN result ON result.id=user_result.result_id
+            WHERE result.ph_id=ph.id)>1");
+            $u['diff_count']=$info[0]['jcount'];
+
+            $info = $this->getData("SELECT
+            count(DISTINCT judge.id) jcount
+            FROM judge
+            INNER JOIN result ON result.id=judge.result_id
+            INNER JOIN placeholder ph ON ph.id=result.ph_id
+            WHERE judge.user_id=$userId
+            AND judge.label_id=1
+            AND (SELECT
+            count(DISTINCT result.id)
+            FROM user_result
+            INNER JOIN result ON result.id=user_result.result_id
+            WHERE result.ph_id=ph.id)=1");
+            $u['instock_count']=$info[0]['jcount'];
         }
         unset($u);
         return $data;
@@ -394,6 +452,48 @@ class DataManager{
                 FROM user_result
                 INNER JOIN result ON result.id=user_result.result_id
                 WHERE result.ph_id=ph.id)>1
+            GROUP BY judge.label_id");
+
+            $labelPhCount = array();
+            foreach($info as $r){
+                $labelPhCount[$r['label_id']] = $r['uc'];
+            }
+            $p['labelPhCount'] = $labelPhCount;
+        }
+        unset($p);
+        return $data;
+    }
+
+    public function getResultInstockInfo(){
+        // 寻找每个属性中没有分歧的记录条数
+        $data = $this->getData("SELECT
+        ph.prop_id,
+        count(DISTINCT ph.id) dc
+        FROM placeholder ph
+        WHERE (SELECT
+            count(DISTINCT result.id)
+            FROM user_result
+            INNER JOIN result ON result.id=user_result.result_id
+            WHERE result.ph_id=ph.id)=1
+        GROUP BY ph.prop_id
+        ORDER BY dc DESC");
+
+        // 寻找每个属性没有分歧的记录中，被打上某个标签的记录条数
+        foreach($data as &$p){
+            $propId = $p['prop_id'];
+            $info = $this->getData("SELECT
+            judge.label_id,
+            count(DISTINCT ph.id) uc
+            FROM placeholder ph
+            INNER JOIN result ON ph.id=result.ph_id
+            INNER JOIN user_result ON user_result.result_id=result.id
+            INNER JOIN judge ON judge.result_id=result.id
+            WHERE ph.prop_id=$propId
+            AND (SELECT
+                count(DISTINCT result.id)
+                FROM user_result
+                INNER JOIN result ON result.id=user_result.result_id
+                WHERE result.ph_id=ph.id)=1
             GROUP BY judge.label_id");
 
             $labelPhCount = array();
@@ -462,6 +562,29 @@ class DataManager{
             INNER JOIN result ON result.id=user_result.result_id
             WHERE result.ph_id=ph.id)>1
         AND ph.prop_id=$propId");
+        return $data;
+    }
+
+    public function getResultInstockDetail($propId){
+        // 寻找某个属性中没有分歧的标注结果和赞同率
+        $data = $this->getData("SELECT
+        `data`.id,
+        `data`.text,
+        GROUP_CONCAT(`user`.uname SEPARATOR ',') unames,
+        result.text rtext,
+        result.agree_count*1.0/(result.agree_count+result.disagree_count) agree_radio
+        FROM placeholder ph
+        INNER JOIN `data` ON `data`.id=ph.data_id
+        INNER JOIN result ON result.ph_id=ph.id
+        INNER JOIN user_result ON user_result.result_id=result.id
+        INNER JOIN `user` ON `user`.id=user_result.user_id
+        WHERE (SELECT
+            count(DISTINCT result.id)
+            FROM user_result
+            INNER JOIN result ON result.id=user_result.result_id
+            WHERE result.ph_id=ph.id)=1
+        AND ph.prop_id=$propId
+        GROUP BY result.id");
         return $data;
     }
 

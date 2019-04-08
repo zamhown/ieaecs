@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__).'/../config/conf.php');
 
 if(!isset($_SESSION['userName'])){
-    header("Location: ../login.html");
+    header("Location: ".dirname(__FILE__)."/../login.html");
     exit;
 }
 header("Content-type: text/html; charset=utf-8");

@@ -32,6 +32,8 @@ $db->close();
                 <th>排名</th>
                 <th>用户名</th>
                 <th>检测条数</th>
+                <th>消歧条数</th>
+                <th>入库条数</th>
                 <th>贡献条数</th>
                 <th>收到赞同</th>
                 <th>赞同率</th>
@@ -39,24 +41,37 @@ $db->close();
         </thead>
         <tbody>
             <?php
-            $i = 1;
-            $sum = array(0,0,0,0);
+            $i = 0;
+            $sum = array(0,0,0,0,0,0);
             foreach($rank as $r){
+                $i++;
                 $sum[0]+=$r['jc'];
                 $sum[1]+=$r['rcount'];
                 $sum[2]+=$r['agree'];
                 $sum[3]+=$r['disagree'];
+                $sum[4]+=$r['diff_count'];
+                $sum[5]+=$r['instock_count'];
             ?>
                 <tr>
                     <td <?php
                         if($i<=3){
-                            echo 'style="color:red"';
+                            echo 'style="color:red;font-weight:bold"';
                         }
                     ?>>
-                        <?php echo $i++ ?>
+                        <?php echo $i ?>
                     </td>
-                    <td><?php echo $r['uname'] ?></td>
-                    <td><?php echo $r['jc'] ?></td>
+                    <td <?php
+                        if($i<=3){
+                            echo 'style="font-weight:bold"';
+                        }
+                    ?>><?php echo $r['uname'] ?></td>
+                    <td <?php
+                        if($i<=3){
+                            echo 'style="font-weight:bold"';
+                        }
+                    ?>><?php echo $r['jc'] ?></td>
+                    <td><?php echo $r['diff_count'] ?></td>
+                    <td><?php echo $r['instock_count'] ?></td>
                     <td><?php echo $r['rcount'] ?></td>
                     <td><?php echo $r['agree'] ?></td>
                     <td><?php
@@ -73,6 +88,8 @@ $db->close();
             <tr>
                 <td colspan="2">合计</td>
                 <td><?php echo $sum[0] ?></td>
+                <td><?php echo $sum[4] ?></td>
+                <td><?php echo $sum[5] ?></td>
                 <td><?php echo $sum[1] ?></td>
                 <td><?php echo $sum[2] ?></td>
                 <td><?php

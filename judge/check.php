@@ -4,6 +4,10 @@ include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $hasGet = isset($_GET['phid']) && $_GET['phid'];
 $phId;$data;$prop;$res;$labels;$amendment;$userJudgeCount;
+$type = 0;  // 行为类型，0为默认（分歧+入库），1为检测分歧，2为入库
+if(isset($_GET['type'])){
+    $type = intval($_GET['type']);
+}
 
 if(!$hasGet){
     header("Location: action.php");
@@ -16,12 +20,12 @@ if(!$hasGet){
     }
 
     // 做记录以备返回上一条
-    if(!isset($_SESSION['record'])){
-        $_SESSION['record'] = array();
+    if(!isset($_SESSION["record$type"])){
+        $_SESSION["record$type"] = array();
     }
-    if(!(count($_SESSION['record']) 
-    && $_SESSION['record'][count($_SESSION['record'])-1]['phId'] == $phId)){
-        array_push($_SESSION['record'], array(
+    if(!(count($_SESSION["record$type"]) 
+    && $_SESSION["record$type"][count($_SESSION["record$type"])-1]['phId'] == $phId)){
+        array_push($_SESSION["record$type"], array(
             'phId' => $phId
         ));
     }
@@ -200,7 +204,7 @@ if(!$hasGet){
             <p class="data">
                 <?php echo $data['text'] ?>
             </p>
-            <form action="toggle-star.php" method="post">
+            <form action="toggle-star.php?type=<?php echo $type ?>" method="post">
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="from" value="judge">
                 <input type="submit" value="<?php
@@ -217,7 +221,7 @@ if(!$hasGet){
             </form>
         </section>
         <section class="section-judge">
-            <form id="judgeForm" action="action.php" method="post">
+            <form id="judgeForm" action="action.php?type=<?php echo $type ?>" method="post">
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="rlist" value="<?php echo json_encode(array_map(function($e){return intval($e['id']);}, $res)) ?>">
                 <h2>属性“<?php echo $prop['text'] ?>”已有<?php echo count($res) ?>种抽取结果</h2>
@@ -265,10 +269,14 @@ if(!$hasGet){
                                     <span class="data"><?php echo $text ?></span>
                                     <?php
                                         if(!$r['label_id']){
-                                            if($gsError){
-                                                echo '<br><br><span style="color:red">【系统检测到格式可能出错，已自动标记】</span>';
-                                            }else if($nrError){
-                                                echo '<br><br><span style="color:red">【系统检测到抽取可能出错，已自动标记】</span>';
+                                            if($type==2){
+                                                echo '<br><br><span style="color:red">【为方便入库，已自动标记为赞同】</span>';
+                                            }else{
+                                                if($gsError){
+                                                    echo '<br><br><span style="color:red">【系统检测到格式可能出错，已自动标记】</span>';
+                                                }else if($nrError){
+                                                    echo '<br><br><span style="color:red">【系统检测到抽取可能出错，已自动标记】</span>';
+                                                }
                                             }
                                         }
                                     ?>
@@ -286,10 +294,14 @@ if(!$hasGet){
                                     <input type="hidden" class="label-v" name="r<?php echo $r['id'] ?>" value="<?php
                                         if($r['label_id']){
                                             echo $r['label_id'];
-                                        }else if($gsError){
-                                            echo '3';
-                                        }else if($nrError){
-                                            echo '2';
+                                        }else if($type==2){
+                                            echo '1';
+                                        }else{
+                                            if($gsError){
+                                                echo '3';
+                                            }else if($nrError){
+                                                echo '2';
+                                            }
                                         }
                                     ?>">
                                 </td>
@@ -306,9 +318,9 @@ if(!$hasGet){
                                 <input style="display:block; width:100%" type="text" name="amendment" value="">
                             </td>
                             <td style="text-align:center">
-                                <?php if(count($_SESSION['record'])>1){ 
-                                    $r = $_SESSION['record'][count($_SESSION['record'])-2]; ?>
-                                    <a href="prev.php">上一个</a><br>
+                                <?php if(count($_SESSION["record$type"])>1){ 
+                                    $r = $_SESSION["record$type"][count($_SESSION["record$type"])-2]; ?>
+                                    <a href="prev.php?type=<?php echo $type ?>">上一个</a><br>
                                 <?php } ?>
                                 <input type="submit" value="提交，下一个">
                             </td>
