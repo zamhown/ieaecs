@@ -49,7 +49,7 @@ $db->close();
     <hr>
     <p>欢迎<?php echo $_SESSION['userName'] ?>！你已检测<?php echo $userJudgeCount ?>条数据。</p>
     <p>请选择你擅长的属性类型：</p>
-    <form id="propForm" action="judge/action.php?clear=1&type=" method="post">
+    <form id="propForm" action="judge/check.php?clear=1&type=" method="post">
         <table>
             <tr>
                 <td style="padding:15px">
@@ -94,14 +94,14 @@ $db->close();
         function clickJudge(e){
             e.preventDefault();
             var $form = $('#propForm');
-            $form.attr('action', 'judge/action.php?clear=1&type=1');
+            $form.attr('action', 'judge/check.php?clear=1&type=1');
             $form.submit();
         }
 
         function clickInstock(e){
             e.preventDefault();
             var $form = $('#propForm');
-            $form.attr('action', 'judge/action.php?clear=1&type=2');
+            $form.attr('action', 'judge/check.php?clear=1&type=2');
             $form.submit();
         }
     </script>

@@ -2,79 +2,122 @@
 include_once(dirname(__FILE__).'/../public/public.php');
 include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
+// 系统分配下一批目标
+function nextBatch($db, $type){
+    $data = $db->nextPlaceholder($_SESSION['userId'], $_SESSION['userProps'], $type, 100);
+    if($data===false){
+        echo "没有需要检测的数据！";
+        echo '<br><br><a href="../index.php">返回</a>';
+        exit();
+    }
+    $_SESSION["batch$type"] = $data;
+    $_SESSION["batchPtr$type"] = 0;
+}
+
+// 系统分配下一个目标
+function nextTarget($db, $type){
+    if(!isset($_SESSION["batch$type"])
+    || !isset($_SESSION["batchPtr$type"])
+    || $_SESSION["batchPtr$type"]>=count($_SESSION["batch$type"])){
+        nextBatch($db, $type);
+    }
+    return $_SESSION["batch$type"][$_SESSION["batchPtr$type"]];
+}
+
 $hasGet = isset($_GET['phid']) && $_GET['phid'];
-$phId;$data;$prop;$res;$labels;$amendment;$userJudgeCount;
+$phId = 0;
 $type = 0;  // 行为类型，0为默认（分歧+入库），1为检测分歧，2为入库
 if(isset($_GET['type'])){
     $type = intval($_GET['type']);
 }
 
-if(!$hasGet){
-    header("Location: action.php");
-}else{
-    $db = new DataManager();
+$db = new DataManager();
+if($hasGet){
     $phId = intval($_GET['phid']);
-    $ph = $db->getPlaceholderById($phId);
-    if(!$ph){
-        header("Location: action.php");
+}else{
+    // 改变用户擅长的属性类型
+    if(isset($_POST['props'])){
+        $userProps = implode(",", $_POST['props']);
+        $db->updateUserProps($_SESSION['userId'], $userProps);
+        $_SESSION['userProps'] = $userProps;
+    }
+    if(!isset($_SESSION['userProps'])){
+        $_SESSION['userProps'] = '';
     }
 
-    // 做记录以备返回上一条
-    if(!isset($_SESSION["record$type"])){
-        $_SESSION["record$type"] = array();
-    }
-    if(!(count($_SESSION["record$type"]) 
-    && $_SESSION["record$type"][count($_SESSION["record$type"])-1]['phId'] == $phId)){
-        array_push($_SESSION["record$type"], array(
-            'phId' => $phId
-        ));
-    }
-
-    // 缓存数据
-    if(!isset($_SESSION['propDic'])){
-        $props = $db->getProps();
-        $_SESSION['propDic'] = array();
-        foreach($props as $p){
-            $_SESSION['propDic'][intval($p['id'])] = $p;
-        }
-    }
-    $prop = $_SESSION['propDic'][intval($ph['prop_id'])];
-    if(!isset($_SESSION['labels'])){
-        $_SESSION['labels'] = $db->getLabels();
-    }
-    $labels = $_SESSION['labels'];
-
-    $data = $db->getDataRecord($ph['data_id']);
-
-    $dres = $db->getResultsForJudge($phId, $_SESSION['userId']);
-    $res = array();
-    for($i = 0; $i<count($dres); $i++){
-        $flag = true;
-        foreach($res as &$r){
-            if($dres[$i]['id']==$r['id']){
-                $r['uname'].='，'.$dres[$i]['uname'];
-                $flag = false;
-                break;
+    // 储存/更改检测结果
+    if(isset($_POST['rlist'])){
+        $rlist = json_decode($_POST['rlist'], true);
+        foreach($rlist as $r){
+            if(isset($_POST['r'.$r]) && $_POST['r'.$r]){
+                $db->addJudge($r, $_SESSION['userId'], $_POST['r'.$r], $type==2?1:0);
             }
         }
-        unset($r);
-        if($flag){
-            array_push($res, $dres[$i]);
+        if(isset($_POST['amendment']) && $_POST['amendment']){
+            $db->addResultByPhId($_POST['phId'], $_SESSION['userId'], $_POST['amendment'], 1);
+        }
+        // 历史记录与任务分配重合，则继续任务
+        if(isset($_SESSION["batchPtr$type"])
+        && isset($_SESSION["record$type"])
+        && count($_SESSION["record$type"])
+        && $_SESSION["record$type"][count($_SESSION["record$type"])-1]['phId']
+        ==$_SESSION["batch$type"][$_SESSION["batchPtr$type"]]['id']){
+            $_SESSION["batchPtr$type"]++;
         }
     }
 
-    $isStar = $db->isStar($phId, $_SESSION['userId']);
-    /*
-    $aa = $db->getAmendment($phId, $_SESSION['userId']);
-    if(count($aa)){
-        $amendment = $aa[0]['text'];
-    }else{
-        $amendment = '';
+    if(isset($_GET['clear'])){
+        // 清空已分配的任务
+        unset($_SESSION["batch$type"]);
+        unset($_SESSION["batchPtr$type"]);
+        // 清空缓存
+        unset($_SESSION['propDic']);
+        unset($_SESSION['labels']);
+        unset($_SESSION['userJudgeCount']);
     }
-    */
-    $userJudgeCount = $db->getUserJudgeCount($_SESSION['userId']);
-    $db->close();
+
+    // 分配下一个
+    $t = nextTarget($db, $type);
+    $phId = $t['id'];
 }
+
+$ph = $db->getPlaceholderById($phId);
+if(!$ph){
+    echo "没有需要检测的数据！";
+    echo '<br><br><a href="../index.php">返回</a>';
+    exit();
+}
+
+// 做记录以备返回上一条
+if(!isset($_SESSION["record$type"])){
+    $_SESSION["record$type"] = array();
+}
+if(!(count($_SESSION["record$type"]) 
+&& $_SESSION["record$type"][count($_SESSION["record$type"])-1]['phId'] == $phId)){
+    array_push($_SESSION["record$type"], array(
+        'phId' => $phId
+    ));
+}
+
+// 缓存数据
+if(!isset($_SESSION['propDic'])){
+    $props = $db->getProps();
+    $_SESSION['propDic'] = array();
+    foreach($props as $p){
+        $_SESSION['propDic'][intval($p['id'])] = $p;
+    }
+}
+$prop = $_SESSION['propDic'][intval($ph['prop_id'])];
+if(!isset($_SESSION['labels'])){
+    $_SESSION['labels'] = $db->getLabels();
+}
+$labels = $_SESSION['labels'];
+
+$data = $db->getDataRecord($ph['data_id']);
+$res = $db->getResultsForJudge($phId, $_SESSION['userId']);
+$isStar = $db->isStar($phId, $_SESSION['userId']);
+$userJudgeCount = $db->getUserJudgeCount($_SESSION['userId']);
+$db->close();
 ?>
 <!DOCTYPE html>
 <html>
@@ -221,7 +264,7 @@ if(!$hasGet){
             </form>
         </section>
         <section class="section-judge">
-            <form id="judgeForm" action="action.php?type=<?php echo $type ?>" method="post">
+            <form id="judgeForm" action="check.php?type=<?php echo $type ?>" method="post">
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="rlist" value="<?php echo json_encode(array_map(function($e){return intval($e['id']);}, $res)) ?>">
                 <h2>属性“<?php echo $prop['text'] ?>”已有<?php echo count($res) ?>种抽取结果</h2>
@@ -263,7 +306,7 @@ if(!$hasGet){
                             $nrError = (count($res)>0 && $text==='无') || !trim($text);
                             ?>
                             <tr id="tr<?php echo $r['id'] ?>" class="trData" onmouseenter="ome(event)">
-                                <td class="tdName"><?php echo $r['uname'] ?></td>
+                                <td class="tdName"><?php echo $r['unames'] ?></td>
                                 <td class="tdProp"><?php echo $prop['text'] ?></td>
                                 <td class="tdData">
                                     <span class="data"><?php echo $text ?></span>
@@ -318,8 +361,7 @@ if(!$hasGet){
                                 <input style="display:block; width:100%" type="text" name="amendment" value="">
                             </td>
                             <td style="text-align:center">
-                                <?php if(count($_SESSION["record$type"])>1){ 
-                                    $r = $_SESSION["record$type"][count($_SESSION["record$type"])-2]; ?>
+                                <?php if(count($_SESSION["record$type"])>1){ ?>
                                     <a href="prev.php?type=<?php echo $type ?>">上一个</a><br>
                                 <?php } ?>
                                 <input type="submit" value="提交，下一个">

@@ -200,14 +200,14 @@ class DataManager{
         result.agree_count,
         result.disagree_count,
         result.uncertain_count,
-        user.uname, 
-        user_result.user_id, 
+        GROUP_CONCAT(`user`.uname SEPARATOR ',') unames,
         judge.label_id
         FROM result
         INNER JOIN user_result ON result.id=user_result.result_id
         INNER JOIN user ON user_result.user_id=user.id
         LEFT JOIN judge ON result.id=judge.result_id AND judge.user_id=$userId
         WHERE result.ph_id=$phId
+        GROUP BY result.id
         ORDER BY result.agree_count+result.uncertain_count-result.disagree_count DESC");
         return $data;
     }
@@ -228,7 +228,7 @@ class DataManager{
 
     // 取用户未检测过的、有分歧的、已检测（不含不确定）人数最少的抽取结果
     public function nextPlaceholder($userId, $userProps, $type, $limit){
-        if(!$userProps || count($userProps)==0){
+        if(!$userProps){
             return false;
         }
         $data = array();
