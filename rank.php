@@ -72,7 +72,11 @@ $db->close();
                     ?>><?php echo $r['jc'] ?></td>
                     <td><?php echo $r['diff_count'] ?></td>
                     <td><?php echo $r['instock_count'] ?></td>
-                    <td><?php echo $r['rcount'] ?></td>
+                    <td>
+                        <a href="user-result-info.php?userid=<?php echo $r['id'] ?>">
+                            <?php echo $r['rcount'] ?>
+                        </a>
+                    </td>
                     <td><?php echo $r['agree'] ?></td>
                     <td><?php
                         $a = floatval($r['agree']);

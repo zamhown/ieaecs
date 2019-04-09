@@ -7,7 +7,7 @@ $hasGet = isset($_GET['propid']) && $_GET['propid']
 $props;$propId;
 
 if(!$hasGet){
-    header("Location: index.php");
+    header("Location: ../index.php");
 }else{
     $propId = $_GET['propid'];
     $type = $_GET['type'];

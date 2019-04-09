@@ -83,6 +83,15 @@ class DataManager{
         return $data;
     }
 
+    public function getUserInfo($userId){
+        $data = $this->getData("SELECT * FROM user where id=$userId");
+        if(count($data)){
+            return $data[0];
+        }else{
+            return false;
+        }
+    }
+
     public function addUpload($userId, $filename, $type){
         $this->changeData("INSERT INTO upload (`user_id`, `filename`, `type`) values($userId, '$filename', $type)");
         // 获取插入后的id（不用担心并发）

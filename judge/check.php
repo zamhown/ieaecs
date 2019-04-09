@@ -270,7 +270,7 @@ if(!$hasGet){
                                     <?php
                                         if(!$r['label_id']){
                                             if($type==2){
-                                                echo '<br><br><span style="color:red">【为方便入库，已自动标记为赞同】</span>';
+                                                echo '<br><br><span style="color:red">【为方便操作，已默认标记为赞同】</span>';
                                             }else{
                                                 if($gsError){
                                                     echo '<br><br><span style="color:red">【系统检测到格式可能出错，已自动标记】</span>';
