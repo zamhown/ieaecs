@@ -67,7 +67,7 @@ class DataManager{
     }
 
     public function login($uname){
-        $id;
+        $id = -1;
         $data = $this->getData("SELECT * FROM user where uname='$uname'");
         if(count($data)){
             $id = $data[0]['id'];
@@ -167,14 +167,14 @@ class DataManager{
     }
 
     public function addResultByPhId($phId, $userId, $text, $amendment, $uploadId=0){
-        $id;
-        $data = $this->getData("SELECT id FROM result WHERE ph_id=$phId and `text`='$text'");
+        $id = 0;
+        $data = $this->getData("SELECT id FROM result WHERE ph_id=$phId and text_crc=CRC32('$text') and `text`='$text'");
         if(count($data)){
             $id = intval($data[0]['id']);
             // 顶掉过去的抽取结果
             $this->changeData("DELETE FROM user_result WHERE `user_id`=$userId and result_id=$id");
         }else{
-            $this->changeData("INSERT INTO result (ph_id, `text`) values($phId, '$text')");
+            $this->changeData("INSERT INTO result (ph_id, `text`, text_crc) values($phId, '$text', CRC32('$text'))");
             // 获取插入后的id（不用担心并发）
             $id = intval($this->getData("SELECT LAST_INSERT_ID() id")[0]['id']);
             $this->changeData("UPDATE placeholder SET result_count=result_count+1 WHERE id=$phId");

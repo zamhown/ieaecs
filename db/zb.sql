@@ -1,5 +1,5 @@
-﻿# Host: localhost  (Version: 5.5.53)
-# Date: 2019-03-28 13:07:48
+﻿# Host: 222.204.216.24  (Version: 5.5.53)
+# Date: 2019-04-12 20:53:13
 # Generator: MySQL-Front 5.3  (Build 4.234)
 
 /*!40101 SET NAMES utf8 */;
@@ -35,6 +35,7 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uname` varchar(10) COLLATE utf8_unicode_ci NOT NULL COMMENT '用户名',
+  `password` varchar(32) CHARACTER SET utf8 NOT NULL DEFAULT '' COMMENT '用户密码',
   `props` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT '用户擅长的属性id列表',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户信息';
@@ -53,7 +54,7 @@ CREATE TABLE `upload` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `upload_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户数据上传记录';
+) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户数据上传记录';
 
 #
 # Structure for table "data"
@@ -94,14 +95,16 @@ DROP TABLE IF EXISTS `result`;
 CREATE TABLE `result` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ph_id` int(11) NOT NULL COMMENT '抽取位id',
-  `text` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `agree_count` int(11) NOT NULL DEFAULT '0',
-  `disagree_count` int(11) NOT NULL DEFAULT '0',
-  `uncertain_count` int(11) NOT NULL DEFAULT '0',
+  `text` varchar(100) COLLATE utf8_unicode_ci NOT NULL COMMENT '抽取出的结果',
+  `text_crc` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '抽取结果的哈希',
+  `agree_count` int(11) NOT NULL DEFAULT '0' COMMENT '赞同数量',
+  `disagree_count` int(11) NOT NULL DEFAULT '0' COMMENT '反对数量',
+  `uncertain_count` int(11) NOT NULL DEFAULT '0' COMMENT '不确定数量',
   PRIMARY KEY (`id`),
   KEY `ph_id` (`ph_id`),
+  KEY `text_crc` (`text_crc`) USING HASH,
   CONSTRAINT `result_ibfk_1` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=535702 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='全部已标注待检测的结果';
+) ENGINE=InnoDB AUTO_INCREMENT=540010 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='全部已标注待检测的结果';
 
 #
 # Structure for table "star"
@@ -115,9 +118,9 @@ CREATE TABLE `star` (
   PRIMARY KEY (`id`),
   KEY `ph_id` (`ph_id`,`user_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `star_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `star_ibfk_1` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户收藏的抽取位';
+  CONSTRAINT `star_ibfk_1` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `star_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=145 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户收藏的抽取位';
 
 #
 # Structure for table "judge"
@@ -129,14 +132,17 @@ CREATE TABLE `judge` (
   `result_id` int(11) NOT NULL COMMENT '检测对象id',
   `user_id` int(11) NOT NULL COMMENT '用户id',
   `label_id` int(11) NOT NULL COMMENT '检测结果id',
+  `instock` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否是入库的决断',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '检测时间',
   PRIMARY KEY (`id`),
   KEY `result_id` (`result_id`,`user_id`,`label_id`),
   KEY `user_id` (`user_id`),
   KEY `result_id_2` (`result_id`,`user_id`,`label_id`),
+  KEY `label_id` (`label_id`),
   CONSTRAINT `judge_ibfk_1` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `judge_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2523 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='检测记录';
+  CONSTRAINT `judge_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `judge_ibfk_3` FOREIGN KEY (`label_id`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=12783 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='检测记录';
 
 #
 # Structure for table "user_result"
@@ -145,8 +151,8 @@ CREATE TABLE `judge` (
 DROP TABLE IF EXISTS `user_result`;
 CREATE TABLE `user_result` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `result_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `result_id` int(11) NOT NULL COMMENT '结果id',
+  `user_id` int(11) NOT NULL COMMENT '用户id',
   `upload_id` int(11) NOT NULL DEFAULT '0' COMMENT '用户上传记录号',
   `amendment` tinyint(1) NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -155,7 +161,7 @@ CREATE TABLE `user_result` (
   KEY `result_id_2` (`result_id`),
   KEY `user_id` (`user_id`),
   KEY `upload_id` (`upload_id`),
-  CONSTRAINT `user_result_ibfk_9` FOREIGN KEY (`upload_id`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_ibfk_7` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_result_ibfk_8` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1061980 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='所有用户的标注结果';
+  CONSTRAINT `user_result_ibfk_8` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_result_ibfk_9` FOREIGN KEY (`upload_id`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1650999 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='所有用户的标注结果';
