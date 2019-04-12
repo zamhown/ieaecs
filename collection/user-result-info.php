@@ -1,18 +1,18 @@
 <?php
-include_once(dirname(__FILE__).'/public/public.php');
-include_once(dirname(__FILE__).'/public/DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/public.php');
+include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 $hasGet = isset($_GET['userid']) && $_GET['userid'];
 $props;$data;$user;
 
 if(!$hasGet){
-    header("Location: index.php");
+    header("Location: ../index.php");
 }else{
     $userId = $_GET['userid'];
     $db = new DataManager();
     $user = $db->getUserInfo($userId);
     if(!$user){
-        header("Location: index.php");
+        header("Location: ../index.php");
         $db->close();
         exit();
     }
@@ -38,7 +38,7 @@ if(!$hasGet){
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit">
-    <link href="css/public.css" type=text/css rel=stylesheet>
+    <link href="../css/public.css" type=text/css rel=stylesheet>
 </head>
 
 <body style="text-align: center">

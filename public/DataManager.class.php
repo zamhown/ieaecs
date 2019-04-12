@@ -520,6 +520,38 @@ class DataManager{
         return $data;
     }
 
+    public function getDataSetTotalInfo(){
+        // 寻找每个属性中有分歧的记录条数和被打上某个标签的记录条数
+        $dataDiff = $this->getResultDiffInfo();
+        // 寻找每个属性中没有分歧的记录条数和被打上某个标签的记录条数
+        $dataInstock = $this->getResultInstockInfo();
+
+        $dataDiffDic = array();
+        $data = array();
+        foreach($dataDiff as $r){
+            $dataDiffDic[$r['prop_id']]=$r;
+        }
+        foreach($dataInstock as $r2){
+            $r1 = $dataDiffDic[$r2['prop_id']];
+            $tc = $r1['dc'] + $r2['dc'];
+            $cc = (isset($r1['labelPhCount']['1']) ? $r1['labelPhCount']['1'] : 0)
+                + (isset($r2['labelPhCount']['1']) ? $r2['labelPhCount']['1'] : 0);
+            array_push($data, array(
+                'prop_id' => $r2['prop_id'],
+                'tc' => $tc,
+                'cc' => $cc,
+                'rate' => $tc==0 ? -1 : round($cc/$tc*100,2)
+            ));
+        }
+        usort($data, function ($a, $b) {
+            if ($a['rate'] == $b['rate']) {
+                return 0;
+            }
+            return ($a['rate'] > $b['rate']) ? -1 : 1;
+        });
+        return $data;
+    }
+
     public function getJudgedDetail($userId, $propId, $type){
         $data = $this->getData("SELECT 
         `data`.id,
@@ -600,6 +632,35 @@ class DataManager{
         AND ph.prop_id=$propId
         GROUP BY result.id");
         return $data;
+    }
+
+    public function getCompleteResultDetail($propId){
+        // 寻找某个属性中已处理过的标注结果和赞同率
+        $data = $this->getData("SELECT
+        `data`.id,
+        `data`.text,
+        result.id rid,
+        GROUP_CONCAT(`user`.uname SEPARATOR ',') unames,
+        result.text rtext,
+        result.agree_count,
+        result.agree_count*1.0/(result.agree_count+result.disagree_count) agree_radio
+        FROM placeholder ph
+        INNER JOIN `data` ON `data`.id=ph.data_id
+        INNER JOIN result ON result.ph_id=ph.id
+        INNER JOIN user_result ON user_result.result_id=result.id
+        INNER JOIN `user` ON `user`.id=user_result.user_id
+        INNER JOIN judge ON judge.result_id=result.id
+        WHERE judge.label_id=1 AND ph.prop_id=$propId
+        GROUP BY result.id
+        ORDER BY `data`.id, agree_radio DESC, agree_count DESC");
+        // 每个data取第一个抽取结果
+        $dataDic = array();
+        foreach($data as $r){
+            if(!isset($dataDic[$r['id']])){
+                $dataDic[$r['id']] = $r;
+            }
+        }
+        return $dataDic;
     }
 
     public function isStar($phId, $userId){

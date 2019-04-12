@@ -1,6 +1,6 @@
 <?php
-include_once(dirname(__FILE__).'/public/public.php');
-include_once(dirname(__FILE__).'/public/DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/public.php');
+include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 if(isset($_GET['propid']) && $_GET['propid']){
     $propId = $_GET['propid'];
@@ -39,10 +39,10 @@ if(isset($_GET['propid']) && $_GET['propid']){
         array_push($csvData, implode(',', $v));
     }
 
-    $filepath = "tmp-files/".$_SESSION['userId'];
+    $filepath = "../tmp-files/".$_SESSION['userId'];
     if(!create_folders($filepath)){
         echo "创建文件夹失败！";
-        echo '<br><br><a href="input.php">返回</a>';
+        echo '<br><br><a href="../input.php">返回</a>';
         exit();
     }
     $filename = "$filepath/diff-detail-propid-$propId.csv";
@@ -51,6 +51,6 @@ if(isset($_GET['propid']) && $_GET['propid']){
     fclose($csv);
     header("Location: $filename");
 }else{
-    header("Location: index.php");
+    header("Location: ../index.php");
 }
 ?>
