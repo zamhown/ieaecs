@@ -171,6 +171,8 @@ class DataManager{
         $data = $this->getData("SELECT id FROM result WHERE ph_id=$phId and `text`='$text'");
         if(count($data)){
             $id = intval($data[0]['id']);
+            // 顶掉过去的抽取结果
+            $this->changeData("DELETE FROM user_result WHERE `user_id`=$userId and result_id=$id");
         }else{
             $this->changeData("INSERT INTO result (ph_id, `text`) values($phId, '$text')");
             // 获取插入后的id（不用担心并发）

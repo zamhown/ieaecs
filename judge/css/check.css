@@ -1,0 +1,97 @@
+p.data{
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+    font-size: 16px;
+    line-height: 25px;
+    letter-spacing: 2px;
+    display: inline-block;
+    padding: 10px;
+    border: 1px solid #cccccc;
+}
+
+span.result{
+    color: red;
+    background-color: #efefef;
+    font-weight: bold;
+}
+
+#mainTable {
+    margin: 0;
+}
+
+#mainTable th {
+    border-color: #666666;
+    background-color: #FFE4E1;
+}
+
+#mainTable tr.active td{
+    background-color: #FFF0F5;
+}
+
+#mainTable tr.trCon td{
+    background-color: #eee;
+}
+
+#mainTable td.tdName, #mainTable td.tdProp, #mainTable th{
+    text-align: center;
+}
+
+a.label{
+    -webkit-appearance: button;
+    padding: 5px;
+    background-color: #ca5b4238;
+    margin: 5px;
+    display: block;
+    color: black;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 15px;
+}
+
+a.label.hover{
+    background-color: #ca5b426a;
+}
+
+a.label.checked{
+    color: white !important;
+    background-color: #ca5b42 !important;
+}
+
+.remodal {
+    max-width: 400px;
+}
+
+section {
+    float: left;
+    width: 50%;
+    padding: 0px 20px;
+}
+
+.section-data {
+    text-align: right;
+}
+
+.section-judge {
+    text-align: left;
+}
+
+.stared {
+    color: #ca5b42;
+}
+
+@media screen and (max-width: 1000px) {
+    section {
+        float: left;
+        width: 100%;
+    }
+    .section-data {
+        text-align: center;
+    }
+    .section-judge {
+        text-align: center;
+    }
+    #mainTable {
+        margin: 0 auto;
+    }
+}
