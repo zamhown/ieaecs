@@ -54,7 +54,9 @@ if($hasGet){
             }
         }
         if(isset($_POST['amendment']) && $_POST['amendment']){
-            $db->addResultByPhId($_POST['phId'], $_SESSION['userId'], $_POST['amendment'], 1);
+            $rid = $db->addResultByPhId($_POST['phId'], $_SESSION['userId'], $_POST['amendment'], 1);
+            // 给自己写的结果自动点个赞（这里默认赞同的标签id为1）
+            $db->addJudge($rid, $_SESSION['userId'], 1, $type==2?1:0);
         }
         // 历史记录与任务分配重合，则继续任务
         if(isset($_SESSION["batchPtr$type"])
@@ -136,7 +138,7 @@ $db->close();
     <link href="../css/public.css" type=text/css rel=stylesheet>
     <link rel="stylesheet" href="../lib/remodal/remodal.css">
     <link rel="stylesheet" href="../lib/remodal/remodal-default-theme.css">
-    <link rel="stylesheet" href="css/check.css?1">
+    <link rel="stylesheet" href="css/check.css?2">
     <script src="//cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
     <script src="../lib/remodal/remodal.min.js"></script>
 </head>
@@ -154,7 +156,7 @@ $db->close();
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="from" value="judge">
                 <?php if(strlen($prop['keywords'])){ ?>
-                    <span style="color:#888888">若出现"<?php echo implode('","', explode(',', $prop['keywords'])) ?>"，将自动标为绿色&nbsp;&nbsp;</span>
+                    <span style="color:#888888;font-size:12px">若出现"<?php echo implode('","', explode(',', $prop['keywords'])) ?>"，将自动标为绿色&nbsp;&nbsp;</span>
                 <?php } ?>
                 <input type="submit" value="<?php
                     if($isStar){
@@ -286,6 +288,7 @@ $db->close();
         <a href="../user/star-record.php">我的收藏</a>
     </p>
     <p>快捷键：←→：切换数据源，↑↓：选择检测结果，Enter：确定/提交</p>
+    <p style="color:#888888;font-size:12px">本数据地址：<span id="url"></span></p>
     <p><a href="../index.php">返回</a></p>
 
     <div class="remodal" data-remodal-id="modalAgree">
@@ -353,8 +356,10 @@ $db->close();
             } ?>];
 
         var keywords = ['<?php echo implode("','", explode(',', $prop['keywords'])) ?>'];
+
+        var url = location.protocol + '//' + location.host + location.pathname + '?phid=' + '<?php echo $phId ?>';
     </script>
-    <script src="js/check.js?1"></script>
+    <script src="js/check.js?2"></script>
 </body>
 
 </html>

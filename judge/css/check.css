@@ -17,7 +17,8 @@ span.result{
 }
 
 span.keyword{
-    color: green;
+    color: darkgreen;
+    background-color: lightgreen;
     font-weight: bold;
 }
 

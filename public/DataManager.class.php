@@ -171,16 +171,17 @@ class DataManager{
         $data = $this->getData("SELECT id FROM result WHERE ph_id=$phId and text_crc=CRC32('$text') and `text`='$text'");
         if(count($data)){
             $id = intval($data[0]['id']);
-            // 顶掉过去的抽取结果
-            $this->changeData("DELETE FROM user_result WHERE `user_id`=$userId and result_id=$id");
         }else{
             $this->changeData("INSERT INTO result (ph_id, `text`, text_crc) values($phId, '$text', CRC32('$text'))");
             // 获取插入后的id（不用担心并发）
             $id = intval($this->getData("SELECT LAST_INSERT_ID() id")[0]['id']);
             $this->changeData("UPDATE placeholder SET result_count=result_count+1 WHERE id=$phId");
         }
-        $rt = $this->changeData("INSERT INTO user_result (result_id, `user_id`, upload_id, amendment) VALUES ($id, $userId, $uploadId, $amendment)");
-        return $rt;
+        // 覆盖过去的抽取结果
+        $this->changeData("DELETE FROM user_result WHERE `user_id`=$userId and ph_id=$phId");
+        // 写入新的结果
+        $this->changeData("INSERT INTO user_result (ph_id, result_id, `user_id`, upload_id, amendment) VALUES ($phId, $id, $userId, $uploadId, $amendment)");
+        return $id;
     }
 
     public function getResult($id){

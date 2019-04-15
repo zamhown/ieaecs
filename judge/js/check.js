@@ -7,6 +7,10 @@ var modalAgree, modalDisagree, modalUncertain;
 var $modalAgree, $modalDisagree, $modalUncertain;
 
 $(function(){
+    document.onkeydown = keyDown;
+
+    $('#url').html(url);
+
     oldData = $('p.data').html();
     trCount = $('tr.trData').length;
 
@@ -245,4 +249,3 @@ function keyDown(e){
         }
     }
 }
-document.onkeydown = keyDown;
