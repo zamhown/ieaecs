@@ -49,7 +49,17 @@ $(function(){
         // 刷新标签点击状态
         refreshLabelState();
     });
+
+    showKeywords(oldData);
 });
+
+function showKeywords(data){
+    keywords.forEach(function(e){
+        data = data.replace(new RegExp(e, 'gm'), '<span class="keyword">'+e+'</span>');
+    })
+    $('p.data').html(data);
+    return data;
+}
 
 function refreshLabelState(){
     $('tr.trData').each(function(){
@@ -155,7 +165,7 @@ function ome(e){
 
 function switchDataSource($tr){
     var s = $tr.find('td.tdData .data').html();
-    $('p.data').html(oldData.replace(s, '<span class="result">'+s+'</span>'));
+    showKeywords(oldData.replace(new RegExp(s, 'gm'), '<span class="result">'+s+'</span>'));
 
     $('tr').removeClass('active');
     $tr.addClass('active');

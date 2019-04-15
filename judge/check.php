@@ -136,7 +136,7 @@ $db->close();
     <link href="../css/public.css" type=text/css rel=stylesheet>
     <link rel="stylesheet" href="../lib/remodal/remodal.css">
     <link rel="stylesheet" href="../lib/remodal/remodal-default-theme.css">
-    <link rel="stylesheet" href="css/check.css">
+    <link rel="stylesheet" href="css/check.css?1">
     <script src="//cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
     <script src="../lib/remodal/remodal.min.js"></script>
 </head>
@@ -153,6 +153,9 @@ $db->close();
             <form action="toggle-star.php?type=<?php echo $type ?>" method="post">
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="from" value="judge">
+                <?php if(strlen($prop['keywords'])){ ?>
+                    <span style="color:#888888">若出现"<?php echo implode('","', explode(',', $prop['keywords'])) ?>"，将自动标为绿色&nbsp;&nbsp;</span>
+                <?php } ?>
                 <input type="submit" value="<?php
                     if($isStar){
                         echo "★ 已收藏";
@@ -348,8 +351,10 @@ $db->close();
                     echo $l['id'].',';
                 }
             } ?>];
+
+        var keywords = ['<?php echo implode("','", explode(',', $prop['keywords'])) ?>'];
     </script>
-    <script src="js/check.js"></script>
+    <script src="js/check.js?1"></script>
 </body>
 
 </html>

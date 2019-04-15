@@ -1,5 +1,5 @@
 ﻿# Host: 222.204.216.24  (Version: 5.5.53)
-# Date: 2019-04-12 20:53:13
+# Date: 2019-04-15 13:29:55
 # Generator: MySQL-Front 5.3  (Build 4.234)
 
 /*!40101 SET NAMES utf8 */;
@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS `prop`;
 CREATE TABLE `prop` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `text` varchar(20) COLLATE utf8_unicode_ci NOT NULL COMMENT '特征名',
+  `keywords` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '特征在数据里的关键词，用英文逗号分隔',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='特征列表';
 
@@ -54,7 +55,7 @@ CREATE TABLE `upload` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `upload_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户数据上传记录';
+) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户数据上传记录';
 
 #
 # Structure for table "data"
@@ -104,7 +105,7 @@ CREATE TABLE `result` (
   KEY `ph_id` (`ph_id`),
   KEY `text_crc` (`text_crc`) USING HASH,
   CONSTRAINT `result_ibfk_1` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=540010 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='全部已标注待检测的结果';
+) ENGINE=InnoDB AUTO_INCREMENT=550112 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='全部已标注待检测的结果';
 
 #
 # Structure for table "star"
@@ -120,7 +121,7 @@ CREATE TABLE `star` (
   KEY `user_id` (`user_id`),
   CONSTRAINT `star_ibfk_1` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `star_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=145 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户收藏的抽取位';
+) ENGINE=InnoDB AUTO_INCREMENT=147 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='用户收藏的抽取位';
 
 #
 # Structure for table "judge"
@@ -142,7 +143,7 @@ CREATE TABLE `judge` (
   CONSTRAINT `judge_ibfk_1` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `judge_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `judge_ibfk_3` FOREIGN KEY (`label_id`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=12783 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='检测记录';
+) ENGINE=InnoDB AUTO_INCREMENT=19481 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='检测记录';
 
 #
 # Structure for table "user_result"
@@ -164,4 +165,4 @@ CREATE TABLE `user_result` (
   CONSTRAINT `user_result_ibfk_7` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_ibfk_8` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_ibfk_9` FOREIGN KEY (`upload_id`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1650999 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='所有用户的标注结果';
+) ENGINE=InnoDB AUTO_INCREMENT=1904408 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='所有用户的标注结果';

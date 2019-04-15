@@ -11,8 +11,13 @@ p.data{
 }
 
 span.result{
-    color: red;
-    background-color: #efefef;
+    color: red !important;
+    background-color: #efefef !important;
+    font-weight: bold !important;
+}
+
+span.keyword{
+    color: green;
     font-weight: bold;
 }
 
