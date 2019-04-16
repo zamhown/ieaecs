@@ -359,7 +359,7 @@ $db->close();
 
         var url = location.protocol + '//' + location.host + location.pathname + '?phid=' + '<?php echo $phId ?>';
     </script>
-    <script src="js/check.js?4"></script>
+    <script src="js/check.js?5"></script>
 </body>
 
 </html>

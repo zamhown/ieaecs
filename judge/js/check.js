@@ -57,7 +57,15 @@ $(function(){
 });
 
 function showKeywords(data){
-    data = data.replace(new RegExp(kwreg, 'gm'), s => '<span class="keyword">'+s+'</span>');
+    if(kwreg.length>0){
+        data = data.replace(new RegExp(kwreg, 'gm'), function(s) {
+            if(s.length>0){
+                return '<span class="keyword">'+s+'</span>'
+            }else{
+                return '';
+            }
+        });
+    }
     $('p.data').html(data);
     return data;
 }
@@ -166,7 +174,11 @@ function ome(e){
 
 function switchDataSource($tr){
     var s = $tr.find('td.tdData .data').html();
-    showKeywords(oldData.replace(new RegExp(s, 'gm'), '<span class="result">'+s+'</span>'));
+    var data = oldData;
+    if(s.length>0){
+        data = data.replace(new RegExp(s, 'gm'), '<span class="result">'+s+'</span>')
+    }
+    showKeywords(data);
 
     $('tr').removeClass('active');
     $tr.addClass('active');

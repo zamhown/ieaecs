@@ -162,7 +162,7 @@ class DataManager{
         return $rt;
     }
 
-    public function addResult($dataId, $propId, $userId, $text, $amendment, $uploadId=0){
+    public function addResult($dataId, $propId, $userId, $text, $amendment, $uploadId='null'){
         $data = $this->getData("SELECT id FROM placeholder WHERE data_id=$dataId and prop_id=$propId");
         if(count($data)){
             return $this->addResultByPhId($data[0]['id'], $userId, $text, $amendment, $uploadId);
@@ -171,7 +171,7 @@ class DataManager{
         }
     }
 
-    public function addResultByPhId($phId, $userId, $text, $amendment, $uploadId=0){
+    public function addResultByPhId($phId, $userId, $text, $amendment, $uploadId='null'){
         $id = 0;
         $data = $this->getData("SELECT id FROM result WHERE ph_id=$phId and text_crc=CRC32('$text') and `text`='$text'");
         if(count($data)){
@@ -247,7 +247,7 @@ class DataManager{
             sum(result.agree_count+result.disagree_count) hot
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
-            LEFT JOIN user_result ON user_result.result_id=result.id
+            INNER JOIN user_result ON user_result.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
             AND (SELECT count(*) FROM judge WHERE result_id=result.id AND `user_id`=$userId)=0
             GROUP BY placeholder.id
@@ -259,7 +259,7 @@ class DataManager{
             sum(result.agree_count+result.disagree_count) hot
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
-            LEFT JOIN user_result ON user_result.result_id=result.id
+            INNER JOIN user_result ON user_result.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
             AND (SELECT count(*) FROM judge WHERE result_id=result.id AND `user_id`=$userId)=0
             GROUP BY placeholder.id HAVING uc > 1
@@ -270,7 +270,7 @@ class DataManager{
             count(DISTINCT user_result.result_id) uc
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
-            LEFT JOIN user_result ON user_result.result_id=result.id
+            INNER JOIN user_result ON user_result.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
             AND (SELECT count(*) FROM judge WHERE result_id=result.id)=0
             GROUP BY placeholder.id HAVING uc = 1
