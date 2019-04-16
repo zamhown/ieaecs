@@ -155,7 +155,7 @@ $db->close();
             <form action="toggle-star.php?type=<?php echo $type ?>" method="post">
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="from" value="judge">
-                <?php if(strlen($prop['keywords'])){ ?>
+                <?php if(strlen($prop['kwreg'])){ ?>
                     <a style="font-size:12px" href="../setting/edit-prop-kwreg.php" title="点击自定义关键字高亮规则">若出现“<?php echo $prop['kwreg'] ?>”，将自动标为绿色&nbsp;&nbsp;</a>
                 <?php } ?>
                 <input type="submit" value="<?php
