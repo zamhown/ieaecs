@@ -138,7 +138,7 @@ $db->close();
     <link href="../css/public.css" type=text/css rel=stylesheet>
     <link rel="stylesheet" href="../lib/remodal/remodal.css">
     <link rel="stylesheet" href="../lib/remodal/remodal-default-theme.css">
-    <link rel="stylesheet" href="css/check.css?2">
+    <link rel="stylesheet" href="css/check.css?3">
     <script src="//cdn.staticfile.org/jquery/1.12.4/jquery.min.js"></script>
     <script src="../lib/remodal/remodal.min.js"></script>
 </head>
@@ -156,7 +156,7 @@ $db->close();
                 <input type="hidden" name="phId" value="<?php echo $phId ?>">
                 <input type="hidden" name="from" value="judge">
                 <?php if(strlen($prop['keywords'])){ ?>
-                    <span style="color:#888888;font-size:12px">若出现"<?php echo implode('","', explode(',', $prop['keywords'])) ?>"，将自动标为绿色&nbsp;&nbsp;</span>
+                    <a style="font-size:12px" href="../setting/edit-prop-kwreg.php" title="点击自定义关键字高亮规则">若出现“<?php echo $prop['kwreg'] ?>”，将自动标为绿色&nbsp;&nbsp;</a>
                 <?php } ?>
                 <input type="submit" value="<?php
                     if($isStar){
@@ -288,7 +288,7 @@ $db->close();
         <a href="../user/star-record.php">我的收藏</a>
     </p>
     <p>快捷键：←→：切换数据源，↑↓：选择检测结果，Enter：确定/提交</p>
-    <p style="color:#888888;font-size:12px">本数据地址：<span id="url"></span></p>
+    <p style="color:#888888;font-size:12px">本数据页地址：<span id="url"></span></p>
     <p><a href="../index.php">返回</a></p>
 
     <div class="remodal" data-remodal-id="modalAgree">
@@ -355,11 +355,11 @@ $db->close();
                 }
             } ?>];
 
-        var keywords = ['<?php echo implode("','", explode(',', $prop['keywords'])) ?>'];
+        var kwreg = '<?php echo sql_escape($prop['kwreg']) ?>';
 
         var url = location.protocol + '//' + location.host + location.pathname + '?phid=' + '<?php echo $phId ?>';
     </script>
-    <script src="js/check.js?2"></script>
+    <script src="js/check.js?4"></script>
 </body>
 
 </html>

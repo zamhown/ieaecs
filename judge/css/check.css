@@ -10,10 +10,10 @@ p.data{
     border: 1px solid #cccccc;
 }
 
-span.result{
-    color: red !important;
-    background-color: #efefef !important;
-    font-weight: bold !important;
+span.result, span.result span.keyword{
+    color: red;
+    background-color: #efefef;
+    font-weight: bold;
 }
 
 span.keyword{

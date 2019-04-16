@@ -134,6 +134,11 @@ class DataManager{
         return $data[0];
     }
 
+    public function setPropKwreg($id, $kwreg){
+        $rt = $this->changeData("UPDATE prop SET kwreg='$kwreg' WHERE id=$id");
+        return $rt;
+    }
+
     public function getPlaceholder($dataId, $propId){
         $data = $this->getData("SELECT * FROM placeholder WHERE data_id=$dataId and prop_id=$propId");
         return $data;

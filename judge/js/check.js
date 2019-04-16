@@ -14,6 +14,7 @@ $(function(){
     oldData = $('p.data').html();
     trCount = $('tr.trData').length;
 
+    showKeywords(oldData);
     refreshLabelState();
 
     $('a.label').mouseenter(function(e){
@@ -53,14 +54,10 @@ $(function(){
         // 刷新标签点击状态
         refreshLabelState();
     });
-
-    showKeywords(oldData);
 });
 
 function showKeywords(data){
-    keywords.forEach(function(e){
-        data = data.replace(new RegExp(e, 'gm'), '<span class="keyword">'+e+'</span>');
-    })
+    data = data.replace(new RegExp(kwreg, 'gm'), s => '<span class="keyword">'+s+'</span>');
     $('p.data').html(data);
     return data;
 }
