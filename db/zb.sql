@@ -11,7 +11,7 @@
  Target Server Version : 50553
  File Encoding         : 65001
 
- Date: 16/04/2019 20:06:38
+ Date: 17/04/2019 13:39:39
 */
 
 SET NAMES utf8mb4;
@@ -45,10 +45,11 @@ CREATE TABLE `judge`  (
   INDEX `result_id`(`result_id`) USING BTREE,
   INDEX `user_id`(`user_id`) USING BTREE,
   INDEX `label_id`(`label_id`) USING BTREE,
+  INDEX `result_id_user_id`(`result_id`, `user_id`) USING BTREE,
   CONSTRAINT `judge_result_id` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `judge_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `judge_label_id` FOREIGN KEY (`label_id`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 29759 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '检测记录' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 38931 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '检测记录' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for label
@@ -58,7 +59,8 @@ CREATE TABLE `label`  (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `text` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '特征名',
   `type` int(11) NOT NULL COMMENT '标签性质，1为赞同，2为反对，3为不确定',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `type`(`type`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '检测结果标签' ROW_FORMAT = Compact;
 
 -- ----------------------------
@@ -73,6 +75,7 @@ CREATE TABLE `placeholder`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `data_id`(`data_id`) USING BTREE,
   INDEX `prop_id`(`prop_id`) USING BTREE,
+  INDEX `data_id_prop_id`(`data_id`, `prop_id`) USING BTREE,
   CONSTRAINT `placeholder_data_id` FOREIGN KEY (`data_id`) REFERENCES `data` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `placeholder_prop_id` FOREIGN KEY (`prop_id`) REFERENCES `prop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB AUTO_INCREMENT = 315145 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '所有可能的抽取位' ROW_FORMAT = Compact;
@@ -103,8 +106,9 @@ CREATE TABLE `result`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `ph_id`(`ph_id`) USING BTREE,
   INDEX `text_crc`(`text_crc`) USING BTREE,
+  INDEX `ph_id_text_crc`(`ph_id`, `text_crc`) USING BTREE,
   CONSTRAINT `result_ph_id` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 550364 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '全部已标注待检测的结果' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 550420 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '全部已标注待检测的结果' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for star
@@ -117,9 +121,10 @@ CREATE TABLE `star`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `ph_id`(`ph_id`) USING BTREE,
   INDEX `user_id`(`user_id`) USING BTREE,
+  INDEX `ph_id_user_id`(`ph_id`, `user_id`) USING BTREE,
   CONSTRAINT `star_ph_id` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `star_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 157 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '用户收藏的抽取位' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 159 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '用户收藏的抽取位' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for upload
@@ -165,10 +170,29 @@ CREATE TABLE `user_result`  (
   INDEX `user_id`(`user_id`) USING BTREE,
   INDEX `upload_id`(`upload_id`) USING BTREE,
   INDEX `ph_id`(`ph_id`) USING BTREE,
+  INDEX `user_id_ph_id`(`ph_id`, `user_id`) USING BTREE,
   CONSTRAINT `user_result_ph_id` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_result_id` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_upload_id` FOREIGN KEY (`upload_id`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 1951755 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '所有用户的标注结果' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1951813 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '所有用户的标注结果' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- View structure for judge_type_1
+-- ----------------------------
+DROP VIEW IF EXISTS `judge_type_1`;
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`%` SQL SECURITY DEFINER VIEW `judge_type_1` AS select `judge`.`result_id` AS `result_id`,count(distinct `judge`.`id`) AS `jc` from (`judge` join `label` on((`label`.`id` = `judge`.`label_id`))) where (`label`.`type` = 1) group by `judge`.`result_id`;
+
+-- ----------------------------
+-- View structure for judge_type_2
+-- ----------------------------
+DROP VIEW IF EXISTS `judge_type_2`;
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`%` SQL SECURITY DEFINER VIEW `judge_type_2` AS select `judge`.`result_id` AS `result_id`,count(distinct `judge`.`id`) AS `jc` from (`judge` join `label` on((`label`.`id` = `judge`.`label_id`))) where (`label`.`type` = 2) group by `judge`.`result_id`;
+
+-- ----------------------------
+-- View structure for judge_type_3
+-- ----------------------------
+DROP VIEW IF EXISTS `judge_type_3`;
+CREATE ALGORITHM = UNDEFINED DEFINER = `root`@`%` SQL SECURITY DEFINER VIEW `judge_type_3` AS select `judge`.`result_id` AS `result_id`,count(distinct `judge`.`id`) AS `jc` from (`judge` join `label` on((`label`.`id` = `judge`.`label_id`))) where (`label`.`type` = 3) group by `judge`.`result_id`;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -284,45 +284,22 @@ class DataManager{
     }
 
     public function addJudge($resultId, $userId, $labelId, $instock){
-        $labels = $this->getLabels();
-        $labelTypes = array();
-        foreach($labels as $l){
-            $labelTypes[intval($l['id'])] = intval($l['type']);
-        }
-        $li = intval($labelId);
-
-        $rt = 0;
-        $needUpdateResult = false;
-        $data = $this->getData("SELECT * FROM judge WHERE result_id=$resultId and `user_id`=$userId");
-        if(count($data)){
-            $oldLabelId = intval($data[0]['label_id']);
-            $oldInstock = intval($data[0]['instock']);
-            if($oldLabelId != $li || $oldInstock != $instock){
-                $rt = $this->changeData("UPDATE judge SET label_id=$labelId AND instock=$instock WHERE id=".$data[0]['id']);
-                if($labelTypes[$oldLabelId] != $labelTypes[$li]){
-                    if($labelTypes[$oldLabelId]==1){
-                        $this->changeData("UPDATE result SET agree_count=agree_count-1 WHERE id=$resultId");
-                    }else if($labelTypes[$oldLabelId]==2){
-                        $this->changeData("UPDATE result SET disagree_count=disagree_count-1 WHERE id=$resultId");
-                    }else if($labelTypes[$oldLabelId]==3){
-                        $this->changeData("UPDATE result SET uncertain_count=uncertain_count-1 WHERE id=$resultId");
-                    }
-                    $needUpdateResult = true;
-                }
-            }
-        }else{
-            $rt = $this->changeData("INSERT INTO judge (result_id, label_id, `user_id`, instock) values($resultId, $labelId, $userId, $instock)");
-            $needUpdateResult = true;
-        }
-        if($needUpdateResult){
-            if($labelTypes[$li]==1){
-                $this->changeData("UPDATE result SET agree_count=agree_count+1 WHERE id=$resultId");
-            }else if($labelTypes[$li]==2){
-                $this->changeData("UPDATE result SET disagree_count=disagree_count+1 WHERE id=$resultId");
-            }else if($labelTypes[$li]==3){
-                $this->changeData("UPDATE result SET uncertain_count=uncertain_count+1 WHERE id=$resultId");
-            }
-        }
+        // 顶掉以前的评判
+        $rt = $this->changeData("DELETE FROM judge WHERE result_id=$resultId and `user_id`=$userId");
+        $rt = $this->changeData("INSERT INTO judge (result_id, label_id, `user_id`, instock) values($resultId, $labelId, $userId, $instock)");
+        // 更新数据
+        $this->changeData("UPDATE result
+        LEFT JOIN judge_type_1
+        ON judge_type_1.result_id = result.id
+        LEFT JOIN judge_type_2
+        ON judge_type_2.result_id = result.id
+        LEFT JOIN judge_type_3
+        ON judge_type_3.result_id = result.id
+        SET
+        result.agree_count=IFNULL(judge_type_1.jc, 0),
+        result.disagree_count=IFNULL(judge_type_2.jc, 0),
+        result.uncertain_count=IFNULL(judge_type_3.jc, 0)
+        WHERE result.id=$resultId");
         return $rt;
     }
 
@@ -697,113 +674,6 @@ class DataManager{
         ORDER BY star.id DESC");
         return $data;
     }
-
-    /*
-    private function get1000R_act($ids, $con, $limit){
-        $idst = implode(',', $ids);
-        $data = $this->getData("SELECT `data`.id, `data`.text FROM `data`
-        RIGHT JOIN result ON `data`.id = result.data_id AND result.user_id = 2
-        $con
-        WHERE `data`.id not in ($idst)
-        ORDER BY length(`data`.text) DESC LIMIT $limit");
-        return $data;
-    }
-
-    public function get1000Records($r200){
-        $texts = array();
-        $ids = array();
-        foreach($r200 as $r){
-            $data = $this->getData("SELECT id FROM `data` WHERE `text`='$r'");
-            if(count($data)){
-                array_push($ids, $data[0]['id']);
-            }
-        }
-        print_r($ids);
-        // 标本50有10无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 2 AND result.text <> '无'", 50);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 2 AND result.text = '无'", 10);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 浸润深度60不同
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 3 AND result.text <> '无'", 60);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 淋巴结转移比例50有10无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 4 AND result.text <> '无'", 50);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 4 AND result.text = '无'", 10);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 肿瘤大小50有10无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 5 AND result.text <> '无'", 50);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 5 AND result.text = '无'", 10);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 病理分类50有10无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 6 AND result.text <> '无'", 50);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 6 AND result.text = '无'", 10);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 淋巴结转移情况20是20否20无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 7 AND result.text = '是'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 7 AND result.text = '否'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 7 AND result.text = '无'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 病理等级50有10无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 8 AND result.text <> '无'", 50);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 8 AND result.text = '无'", 10);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 分化程度50有10无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 9 AND result.text <> '无'", 50);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 9 AND result.text = '无'", 10);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        // 后5个20是20否20无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 10 AND result.text = '是'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 10 AND result.text = '否'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 10 AND result.text = '无'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 11 AND result.text = '是'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 11 AND result.text = '否'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 11 AND result.text = '无'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 12 AND result.text = '是'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 12 AND result.text = '否'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 12 AND result.text = '无'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 13 AND result.text = '是'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 13 AND result.text = '否'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 13 AND result.text = '无'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 14 AND result.text = '是'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 14 AND result.text = '否'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 14 AND result.text = '无'", 20);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-
-        // 腺癌形状50有10无
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 15 AND result.text <> '无'", 50);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-        $data = $this->get1000R_act($ids, "AND result.prop_id = 15 AND result.text = '无'", 10);
-        foreach($data as $d){ array_push($ids, $d['id']); array_push($texts, $d['text']); }
-
-        return $texts;
-    }
-    */
 }
 
 ?>
