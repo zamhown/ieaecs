@@ -503,7 +503,7 @@ class DataManager{
         return $data;
     }
 
-    public function getDataSetTotalInfo(){
+    public function getDataSetTotalInfoViaProps(){
         // 寻找每个属性中有分歧的记录条数和被打上某个标签的记录条数
         $dataDiff = $this->getResultDiffInfo();
         // 寻找每个属性中没有分歧的记录条数和被打上某个标签的记录条数
@@ -532,6 +532,44 @@ class DataManager{
             }
             return ($a['rate'] > $b['rate']) ? -1 : 1;
         });
+        return $data;
+    }
+
+    public function getDataSetTotalInfoViaData(){
+        $props = $this->getProps();
+        // 找到所有属性都有抽取结果的数据
+        $dataDic = array();
+        foreach($props as $p){
+            $dp = $this->getCompleteResultDetailViaProps($p['id']);
+            foreach($dp as $d){
+                if(!isset($dataDic[$d['id']])){
+                    $dataDic[$d['id']] = array();
+                }
+                if(!isset($dataDic[$d['id']][$p['id']])){
+                    $dataDic[$d['id']][$p['id']] = $d;
+                }
+            }
+        }
+        // 计算信息
+        $data = array(
+            'dc' => 0
+        );
+        foreach($dataDic as $v){
+            if(count($v)==count($props)){
+                // 计算样本个数
+                $data['dc']++;
+                foreach($v as $pk => $pv){
+                    // 计算非“无”结果个数
+                    if(!isset($data["prop_$pk"])){
+                        $data["prop_$pk"] = 0;
+                    }
+                    if($pv['rtext'] != '无'){
+                        $data["prop_$pk"]++;
+                    }
+                }
+            }
+        }
+        $data['tc'] = $this->getData("SELECT count(*) tc FROM `data`")[0]['tc'];
         return $data;
     }
 
@@ -617,7 +655,7 @@ class DataManager{
         return $data;
     }
 
-    public function getCompleteResultDetail($propId){
+    public function getCompleteResultDetailViaProps($propId){
         // 寻找某个属性中已处理过的标注结果和赞同率
         $data = $this->getData("SELECT
         `data`.id,
@@ -644,6 +682,54 @@ class DataManager{
             }
         }
         return $dataDic;
+    }
+
+    public function getCompleteResultDetailViaData(){
+        $props = $this->getProps();
+        $data = array();
+        // 找到所有属性都有抽取结果的数据
+        $dataDic = array();
+        foreach($props as $p){
+            $dp = $this->getCompleteResultDetailViaProps($p['id']);
+            foreach($dp as $d){
+                if(!isset($dataDic[$d['id']])){
+                    $dataDic[$d['id']] = array();
+                }
+                if(!isset($dataDic[$d['id']][$p['id']])){
+                    $dataDic[$d['id']][$p['id']] = $d;
+                }
+            }
+        }
+        foreach($dataDic as $v){
+            if(count($v)==count($props)){
+                $row = array();
+                $dataId = 0;
+                $dataText = '';
+                foreach($v as $pk => $pv){
+                    if(!$dataId){
+                        $dataId = $pv['id'];
+                        $dataText = $pv['text'];
+                    }
+                    $row["prop_$pk"] = array(
+                        'rid' => $pv['rid'],
+                        'rtext' => $pv['rtext'],
+                        'unames' => $pv['unames'],
+                        'agree_count' => $pv['agree_count'],
+                        'agree_radio' => $pv['agree_radio']
+                    );
+                }
+                $row['id'] = $dataId;
+                $row['text'] = $dataText;
+                array_push($data, $row);
+            }
+        }
+        usort($data, function ($a, $b) {
+            if ($a['id'] == $b['id']) {
+                return 0;
+            }
+            return ($a['id'] < $b['id']) ? -1 : 1;
+        });
+        return $data;
     }
 
     public function isStar($phId, $userId){

@@ -11,7 +11,7 @@ if(isset($_GET['propid']) && $_GET['propid']){
         $props[$r['id']] = $r['text'];
     }
 
-    $data = $db->getCompleteResultDetail($propId);
+    $data = $db->getCompleteResultDetailViaProps($propId);
     $db->close();
 
     // 确定列名

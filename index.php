@@ -83,12 +83,13 @@ $db->close();
         <a href="data/input.php">数据录入</a>
     </p>
     <p>
-        <a href="collection/diff-info.php">消歧情况</a>&nbsp;&nbsp;&nbsp;
-        <a href="collection/instock-info.php">入库情况</a>&nbsp;&nbsp;&nbsp;
-        <a href="collection/total-info.php">数据集准备进度</a>
+        <a href="collection/total-info-prop.php">数据集准备进度【按属性】</a>&nbsp;&nbsp;&nbsp;
+        <a href="collection/total-info-data.php">数据集准备进度【按样本】</a>
     </p>
     <p>
         <a href="collection/rank.php">高分榜</a>&nbsp;&nbsp;&nbsp;
+        <a href="collection/diff-info.php">消歧情况</a>&nbsp;&nbsp;&nbsp;
+        <a href="collection/instock-info.php">入库情况</a>&nbsp;&nbsp;&nbsp;
         <a href="login.html">重新登录</a>
     </p>
     <script>

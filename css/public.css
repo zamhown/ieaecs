@@ -177,7 +177,7 @@
     border-collapse: collapse;
     margin: 0 auto;
   }
-  table th {
+  table th, .th {
       border-width: 1px;
       padding: 8px;
       border-style: solid;

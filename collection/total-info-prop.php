@@ -8,7 +8,7 @@ $props = array();
 foreach($data as $r){
     $props[$r['id']] = $r['text'];
 }
-$data = $db-> getDataSetTotalInfo();
+$data = $db->getDataSetTotalInfoViaProps();
 $db->close();
 ?>
 <!DOCTYPE html>
@@ -18,7 +18,7 @@ $db->close();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta content="" name="keywords">
     <meta content="" name="description">
-    <title>数据集准备进度</title>
+    <title>数据集准备进度（按属性）</title>
     <meta name="apple-touch-fullscreen" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -29,7 +29,7 @@ $db->close();
 </head>
 
 <body style="text-align: center">
-    <h1>数据集准备进度</h1>
+    <h1>数据集准备进度（按属性）</h1>
     <hr>
     <table style="margin: 10px auto">
         <thead>
@@ -66,7 +66,7 @@ $db->close();
                             echo '-';
                         }
                     ?></td>
-                    <td><a href="get-partial-dataset.php?propid=<?php echo $r['prop_id'] ?>">导出csv</a></td>
+                    <td><a href="get-partial-dataset-via-props.php?propid=<?php echo $r['prop_id'] ?>">导出csv</a></td>
                 </tr>
             <?php } ?>
             <tr>

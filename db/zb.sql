@@ -11,7 +11,7 @@
  Target Server Version : 50553
  File Encoding         : 65001
 
- Date: 17/04/2019 13:39:39
+ Date: 19/04/2019 22:29:22
 */
 
 SET NAMES utf8mb4;
@@ -42,14 +42,14 @@ CREATE TABLE `judge`  (
   `instock` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否是入库的决断',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '检测时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `result_id`(`result_id`) USING BTREE,
   INDEX `user_id`(`user_id`) USING BTREE,
   INDEX `label_id`(`label_id`) USING BTREE,
+  INDEX `result_id`(`result_id`) USING BTREE,
   INDEX `result_id_user_id`(`result_id`, `user_id`) USING BTREE,
   CONSTRAINT `judge_result_id` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `judge_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `judge_label_id` FOREIGN KEY (`label_id`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 38931 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '检测记录' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 60579 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '检测记录' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for label
@@ -73,8 +73,8 @@ CREATE TABLE `placeholder`  (
   `prop_id` int(11) NOT NULL COMMENT '要抽取的属性id',
   `result_count` int(11) NOT NULL DEFAULT 0 COMMENT '已有的不同抽取结果数量',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `data_id`(`data_id`) USING BTREE,
   INDEX `prop_id`(`prop_id`) USING BTREE,
+  INDEX `data_id`(`data_id`) USING BTREE,
   INDEX `data_id_prop_id`(`data_id`, `prop_id`) USING BTREE,
   CONSTRAINT `placeholder_data_id` FOREIGN KEY (`data_id`) REFERENCES `data` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `placeholder_prop_id` FOREIGN KEY (`prop_id`) REFERENCES `prop` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -108,7 +108,7 @@ CREATE TABLE `result`  (
   INDEX `text_crc`(`text_crc`) USING BTREE,
   INDEX `ph_id_text_crc`(`ph_id`, `text_crc`) USING BTREE,
   CONSTRAINT `result_ph_id` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 550420 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '全部已标注待检测的结果' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 550502 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '全部已标注待检测的结果' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for star
@@ -119,12 +119,12 @@ CREATE TABLE `star`  (
   `ph_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `ph_id`(`ph_id`) USING BTREE,
   INDEX `user_id`(`user_id`) USING BTREE,
+  INDEX `ph_id`(`ph_id`) USING BTREE,
   INDEX `ph_id_user_id`(`ph_id`, `user_id`) USING BTREE,
   CONSTRAINT `star_ph_id` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `star_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 159 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '用户收藏的抽取位' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 161 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '用户收藏的抽取位' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for upload
@@ -166,16 +166,16 @@ CREATE TABLE `user_result`  (
   `amendment` tinyint(1) NOT NULL DEFAULT 0,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `result_id`(`result_id`) USING BTREE,
   INDEX `user_id`(`user_id`) USING BTREE,
   INDEX `upload_id`(`upload_id`) USING BTREE,
   INDEX `ph_id`(`ph_id`) USING BTREE,
+  INDEX `result_id`(`result_id`) USING BTREE,
   INDEX `user_id_ph_id`(`ph_id`, `user_id`) USING BTREE,
   CONSTRAINT `user_result_ph_id` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_result_id` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_result_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `user_result_upload_id` FOREIGN KEY (`upload_id`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 1951813 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '所有用户的标注结果' ROW_FORMAT = Compact;
+  CONSTRAINT `user_result_upload_id` FOREIGN KEY (`upload_id`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `user_result_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 1951900 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '所有用户的标注结果' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- View structure for judge_type_1
