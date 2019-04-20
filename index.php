@@ -73,6 +73,11 @@ $db->close();
                     检测无分歧的抽取结果：<input type="submit" value="开始入库" onclick="clickInstock(event)">
                 </td>
             </tr>
+            <tr>
+                <td>
+                    检测完成度最高的样本：<input type="submit" value="开始检测" onclick="clickNearlyComplete(event)">
+                </td>
+            </tr>
         </table>
     </form>
     <br>
@@ -104,6 +109,13 @@ $db->close();
             e.preventDefault();
             var $form = $('#propForm');
             $form.attr('action', 'judge/check.php?clear=1&type=2');
+            $form.submit();
+        }
+
+        function clickNearlyComplete(e){
+            e.preventDefault();
+            var $form = $('#propForm');
+            $form.attr('action', 'judge/check.php?clear=1&type=3');
             $form.submit();
         }
     </script>

@@ -37,7 +37,7 @@ if($hasGet){
 }else{
     // 改变用户擅长的属性类型
     if(isset($_POST['props'])){
-        $userProps = implode(",", $_POST['props']);
+        $userProps = implode(',', $_POST['props']);
         $db->updateUserProps($_SESSION['userId'], $userProps);
         $_SESSION['userProps'] = $userProps;
     }

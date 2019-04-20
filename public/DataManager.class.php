@@ -275,6 +275,51 @@ class DataManager{
             AND (SELECT count(*) FROM judge WHERE result_id=result.id)=0
             GROUP BY placeholder.id HAVING uc = 1
             LIMIT $limit");
+        }else if($type==3){  // 优先选择全部属性将要抽取完成的样本
+            $userPropsArr = explode(',', $userProps);
+            $props = $this->getProps();
+            $dataDic = array();
+            foreach($props as $p){
+                $dp = $this->getCompleteResultDetailViaProps($p['id']);
+                foreach($dp as $d){
+                    if(!isset($dataDic[$d['id']])){
+                        $dataDic[$d['id']] = array();
+                    }
+                    if(!isset($dataDic[$d['id']][$p['id']])){
+                        $dataDic[$d['id']][$p['id']] = true;
+                    }
+                }
+            }
+            $counts = array();
+            foreach($dataDic as $k => $v){
+                if(!isset($counts[count($props)-count($v)])){
+                    $counts[count($props)-count($v)] = array();
+                }
+                array_push($counts[count($props)-count($v)], $k);
+            }
+            $i = 1;
+            $sum = 0;
+            $data = array();
+            $exitFlag = false;
+            while($sum < $limit && isset($counts[$i])){
+                foreach($counts[$i] as $d){
+                    foreach($userPropsArr as $p){
+                        if(!isset($dataDic[$d][$p])){
+                            $ph = $this->getPlaceholder($d, $p);
+                            array_push($data, array('id' => $ph[0]['id']));
+                            $sum++;
+                            if($sum==$limit){
+                                $exitFlag = true;
+                                break;
+                            }
+                        }
+                    }
+                    if($exitFlag){
+                        break;
+                    }
+                }
+                $i++;
+            }
         }
         if(count($data)){
             return $data;
