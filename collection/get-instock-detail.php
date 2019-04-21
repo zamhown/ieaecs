@@ -1,6 +1,7 @@
 <?php
 include_once(dirname(__FILE__).'/../public/public.php');
 include_once(dirname(__FILE__).'/../public/DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/CharsetConv.class.php');
 
 if(isset($_GET['propid']) && $_GET['propid']){
     $propId = $_GET['propid'];
@@ -45,7 +46,8 @@ if(isset($_GET['propid']) && $_GET['propid']){
     }
     $filename = "$filepath/instock-detail-propid-$propId.csv";
     $csv = fopen($filename, "w");
-    fwrite($csv, implode("\r\n", $csvData));
+    $cc = new CharsetConv('utf-8', 'utf-8bom');  // 加bom解决csv乱码问题
+    fwrite($csv, $cc->convert(implode("\r\n", $csvData)));
     fclose($csv);
     header("Location: $filename");
 }else{

@@ -1,17 +1,27 @@
 <?php
 include_once(dirname(__FILE__).'/../public/public.php');
 include_once(dirname(__FILE__).'/../public/DataManager.class.php');
+include_once(dirname(__FILE__).'/../public/CharsetConv.class.php');
 
 $db = new DataManager();
-$props = $db->getProps();
+$data = $db->getProps();
+$props = array();
+$userProps = array();
+foreach($data as $r){
+    $props[$r['id']] = $r['text'];
+    array_push($userProps, $r['id']);
+}
+if(isset($_POST['props'])){
+    $userProps = explode(',', $_POST['props']);
+}
 
-$data = $db->getCompleteResultDetailViaData();
+$data = $db->getCompleteResultDetailViaData($userProps);
 $db->close();
 
 // 确定列名
 $cols = array('ID', '病理诊断');
-foreach($props as $r){
-    array_push($cols, $r['text']);
+foreach($userProps as $pid){
+    array_push($cols, $props[$pid]);
 }
 $dataDic = array();
 foreach($data as $r){
@@ -19,8 +29,8 @@ foreach($data as $r){
         $r['id'],
         csv_escape($r['text'])
     );
-    foreach($props as $p){
-        array_push($row, csv_escape($r['prop_'.$p['id']]['rtext']));
+    foreach($userProps as $pid){
+        array_push($row, csv_escape($r["prop_$pid"]['rtext']));
     }
     array_push($dataDic, $row);
 }
@@ -42,7 +52,8 @@ if(!create_folders($filepath)){
 }
 $filename = "$filepath/partial-dataset.csv";
 $csv = fopen($filename, "w");
-fwrite($csv, implode("\r\n", $csvData));
+$cc = new CharsetConv('utf-8', 'utf-8bom');  // 加bom解决csv乱码问题
+fwrite($csv, $cc->convert(implode("\r\n", $csvData)));
 fclose($csv);
 header("Location: $filename");
 ?>

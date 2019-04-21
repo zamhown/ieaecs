@@ -276,7 +276,6 @@ class DataManager{
             GROUP BY placeholder.id HAVING uc = 1
             LIMIT $limit");
         }else if($type==3){  // 优先选择全部属性将要抽取完成的样本
-            $userPropsArr = explode(',', $userProps);
             $props = $this->getProps();
             $dataDic = array();
             foreach($props as $p){
@@ -291,12 +290,14 @@ class DataManager{
                 }
             }
             $counts = array();
-            foreach($dataDic as $k => $v){
+            foreach($dataDic as $d => $v){
                 if(!isset($counts[count($props)-count($v)])){
                     $counts[count($props)-count($v)] = array();
                 }
-                array_push($counts[count($props)-count($v)], $k);
+                array_push($counts[count($props)-count($v)], $d);
             }
+
+            $userPropsArr = explode(',', $userProps);
             $i = 1;
             $sum = 0;
             $data = array();
@@ -306,7 +307,9 @@ class DataManager{
                     foreach($userPropsArr as $p){
                         if(!isset($dataDic[$d][$p])){
                             $ph = $this->getPlaceholder($d, $p);
-                            array_push($data, array('id' => $ph[0]['id']));
+                            array_push($data, array(
+                                'id' => $ph[0]['id']
+                            ));
                             $sum++;
                             if($sum==$limit){
                                 $exitFlag = true;
@@ -580,18 +583,17 @@ class DataManager{
         return $data;
     }
 
-    public function getDataSetTotalInfoViaData(){
-        $props = $this->getProps();
+    public function getDataSetTotalInfoViaData($props){
         // 找到所有属性都有抽取结果的数据
         $dataDic = array();
-        foreach($props as $p){
-            $dp = $this->getCompleteResultDetailViaProps($p['id']);
+        foreach($props as $pid){
+            $dp = $this->getCompleteResultDetailViaProps($pid);
             foreach($dp as $d){
                 if(!isset($dataDic[$d['id']])){
                     $dataDic[$d['id']] = array();
                 }
-                if(!isset($dataDic[$d['id']][$p['id']])){
-                    $dataDic[$d['id']][$p['id']] = $d;
+                if(!isset($dataDic[$d['id']][$pid])){
+                    $dataDic[$d['id']][$pid] = $d;
                 }
             }
         }
@@ -729,19 +731,18 @@ class DataManager{
         return $dataDic;
     }
 
-    public function getCompleteResultDetailViaData(){
-        $props = $this->getProps();
+    public function getCompleteResultDetailViaData($props){
         $data = array();
         // 找到所有属性都有抽取结果的数据
         $dataDic = array();
-        foreach($props as $p){
-            $dp = $this->getCompleteResultDetailViaProps($p['id']);
+        foreach($props as $pid){
+            $dp = $this->getCompleteResultDetailViaProps($pid);
             foreach($dp as $d){
                 if(!isset($dataDic[$d['id']])){
                     $dataDic[$d['id']] = array();
                 }
-                if(!isset($dataDic[$d['id']][$p['id']])){
-                    $dataDic[$d['id']][$p['id']] = $d;
+                if(!isset($dataDic[$d['id']][$pid])){
+                    $dataDic[$d['id']][$pid] = $d;
                 }
             }
         }
