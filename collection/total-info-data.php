@@ -26,7 +26,7 @@ $db->close();
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta content="" name="keywords">
     <meta content="" name="description">
-    <title>数据集准备进度（按样本）</title>
+    <title>查看数据集</title>
     <meta name="apple-touch-fullscreen" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -48,7 +48,7 @@ $db->close();
 </head>
 
 <body style="text-align: center">
-    <h1>数据集准备进度（按样本）</h1>
+    <h1>查看数据集</h1>
     <hr>
     <h2>请设定样本需包含的属性</h2>
     <form action="total-info-data.php" method="post">
@@ -67,6 +67,9 @@ $db->close();
         </div>
     </form>
     <br>
+    <p>
+        <a href="total-info-prop.php">查看每个属性的数据集准备进度</a>
+    </p>
     <?php if($hasPost){ ?>
         <hr>
         <h2>总体情况</h2>

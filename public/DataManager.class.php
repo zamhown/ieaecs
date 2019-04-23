@@ -235,9 +235,12 @@ class DataManager{
     }
 
     // 取用户未检测过的、有分歧的、已检测（不含不确定）人数最少的抽取结果
-    public function nextPlaceholder($userId, $userProps, $type, $limit){
+    public function nextPlaceholder($userId, $userProps, $userNoLabels, $type, $limit){
         if(!$userProps){
             return false;
+        }
+        if(!$userNoLabels){
+            $userNoLabels = '0';
         }
         $data = array();
         if($type==0){  // 默认
@@ -248,10 +251,12 @@ class DataManager{
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
             INNER JOIN user_result ON user_result.result_id=result.id
+            LEFT JOIN judge ON judge.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
-            AND (SELECT count(*) FROM judge WHERE result_id=result.id AND `user_id`=$userId)=0
             GROUP BY placeholder.id
-            ORDER BY uc DESC, hot LIMIT $limit");
+            HAVING sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels))=0
+            ORDER BY uc DESC, hot, placeholder.data_id
+            LIMIT $limit");
         }else if($type==1){  // 检测分歧
             $data = $this->getData("SELECT
             placeholder.id,
@@ -260,10 +265,12 @@ class DataManager{
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
             INNER JOIN user_result ON user_result.result_id=result.id
+            LEFT JOIN judge ON judge.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
-            AND (SELECT count(*) FROM judge WHERE result_id=result.id AND `user_id`=$userId)=0
-            GROUP BY placeholder.id HAVING uc > 1
-            ORDER BY uc DESC, hot LIMIT $limit");
+            GROUP BY placeholder.id
+            HAVING uc > 1 AND sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels))=0
+            ORDER BY uc DESC, hot, placeholder.data_id
+            LIMIT $limit");
         }else if($type==2){  // 入库
             $data = $this->getData("SELECT
             placeholder.id,
@@ -271,9 +278,11 @@ class DataManager{
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
             INNER JOIN user_result ON user_result.result_id=result.id
+            LEFT JOIN judge ON judge.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
-            AND (SELECT count(*) FROM judge WHERE result_id=result.id)=0
-            GROUP BY placeholder.id HAVING uc = 1
+            GROUP BY placeholder.id
+            HAVING uc = 1 AND sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels))=0
+            ORDER BY placeholder.data_id
             LIMIT $limit");
         }else if($type==3){  // 优先选择全部属性将要抽取完成的样本
             $props = $this->getProps();
@@ -306,14 +315,23 @@ class DataManager{
                 foreach($counts[$i] as $d){
                     foreach($userPropsArr as $p){
                         if(!isset($dataDic[$d][$p])){
-                            $ph = $this->getPlaceholder($d, $p);
-                            array_push($data, array(
-                                'id' => $ph[0]['id']
-                            ));
-                            $sum++;
-                            if($sum==$limit){
-                                $exitFlag = true;
-                                break;
+                            $phData = $this->getData("SELECT
+                            placeholder.id
+                            FROM placeholder
+                            INNER JOIN result ON result.ph_id = placeholder.id
+                            LEFT JOIN judge ON judge.result_id = result.id
+                            WHERE placeholder.data_id=$d AND placeholder.prop_id=$p
+                            GROUP BY placeholder.id HAVING sum(judge.label_id IN ($userNoLabels))=0");
+                            if(count($phData)){
+                                $phId = $phData[0]['id'];
+                                array_push($data, array(
+                                    'id' => $phId
+                                ));
+                                $sum++;
+                                if($sum==$limit){
+                                    $exitFlag = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -381,6 +399,16 @@ class DataManager{
     public function getUserProps($userId){
         $data = $this->getData("SELECT props FROM `user` WHERE id=$userId");
         return $data[0]['props'];
+    }
+
+    public function updateUserNoLabels($userId, $noLabels){
+        $rt = $this->changeData("UPDATE `user` SET nolabels='$noLabels' WHERE id=$userId");
+        return $rt;
+    }
+
+    public function getUserNoLabels($userId){
+        $data = $this->getData("SELECT nolabels FROM `user` WHERE id=$userId");
+        return $data[0]['nolabels'];
     }
 
     public function getUserRank(){

@@ -14,9 +14,15 @@ if($hasPost){
     $db->login($_POST['userName']);
 }
 $userJudgeCount = $db->getUserJudgeCount($_SESSION['userId']);
+
 $props = $db->getProps();
 $data = $db->getUserProps($_SESSION['userId']);
 $userProps = explode(',', $data);
+
+$labels = $db->getLabels();
+$data = $db->getUserNoLabels($_SESSION['userId']);
+$userNoLabels = explode(',', $data);
+
 $db->close();
 ?>
 <!DOCTYPE html>
@@ -37,7 +43,7 @@ $db->close();
 
     <style>
         #propForm{
-            max-width: 300px;
+            max-width: 400px;
             text-align: left;
             margin: 0 auto;
         }
@@ -48,11 +54,11 @@ $db->close();
     <h1><?php echo TITLE ?></h1>
     <hr>
     <p>欢迎<?php echo $_SESSION['userName'] ?>！你已检测<?php echo $userJudgeCount ?>条数据。</p>
-    <p>请选择你擅长的属性类型：</p>
     <form id="propForm" action="judge/check.php?clear=1&type=" method="post">
         <table>
             <tr>
                 <td style="padding:15px">
+                    <p>请选择你擅长的属性类型：</p>
                     <?php foreach($props as $p){ ?>
                         <!-- name后加[]，这样php才能正确读取 -->
                         <input type="checkbox" name="props[]" value="<?php echo $p['id'] ?>"
@@ -64,17 +70,30 @@ $db->close();
                 </td>
             </tr>
             <tr>
-                <td>
+                <td style="padding:15px">
+                    <p>请选择检测时需要排除的已被检测过的抽取位：</p>
+                    <?php foreach($labels as $l){ ?>
+                        <!-- name后加[]，这样php才能正确读取 -->
+                        <input type="checkbox" name="nolabels[]" value="<?php echo $l['id'] ?>"
+                        <?php if(in_array($l['id'], $userNoLabels)){
+                            echo 'checked';
+                        } ?>>
+                        <?php echo $l['text'] ?><br>
+                    <?php } ?>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center">
                     检测有分歧的抽取结果：<input type="submit" value="开始消歧" onclick="clickJudge(event)">
                 </td>
             </tr>
             <tr>
-                <td>
+                <td style="text-align:center">
                     检测无分歧的抽取结果：<input type="submit" value="开始入库" onclick="clickInstock(event)">
                 </td>
             </tr>
             <tr>
-                <td>
+                <td style="text-align:center">
                     检测完成度最高的样本：<input type="submit" value="开始检测" onclick="clickNearlyComplete(event)">
                 </td>
             </tr>
@@ -88,13 +107,12 @@ $db->close();
         <a href="data/input.php">数据录入</a>
     </p>
     <p>
-        <a href="collection/total-info-prop.php">数据集准备进度【按属性】</a>&nbsp;&nbsp;&nbsp;
-        <a href="collection/total-info-data.php">数据集准备进度【按样本】</a>
+        <a href="collection/total-info-data.php">查看数据集</a>&nbsp;&nbsp;&nbsp;
+        <a href="collection/diff-info.php">消歧情况</a>&nbsp;&nbsp;&nbsp;
+        <a href="collection/instock-info.php">入库情况</a>&nbsp;&nbsp;&nbsp;
     </p>
     <p>
         <a href="collection/rank.php">高分榜</a>&nbsp;&nbsp;&nbsp;
-        <a href="collection/diff-info.php">消歧情况</a>&nbsp;&nbsp;&nbsp;
-        <a href="collection/instock-info.php">入库情况</a>&nbsp;&nbsp;&nbsp;
         <a href="login.html">重新登录</a>
     </p>
     <script>

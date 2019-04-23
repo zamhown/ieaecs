@@ -4,7 +4,7 @@ include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
 // 系统分配下一批目标
 function nextBatch($db, $type){
-    $data = $db->nextPlaceholder($_SESSION['userId'], $_SESSION['userProps'], $type, 100);
+    $data = $db->nextPlaceholder($_SESSION['userId'], $_SESSION['userProps'], $_SESSION['userNoLabels'], $type, 100);
     if($data===false){
         echo "没有需要检测的数据！";
         echo '<br><br><a href="../index.php">返回</a>';
@@ -43,6 +43,16 @@ if($hasGet){
     }
     if(!isset($_SESSION['userProps'])){
         $_SESSION['userProps'] = '';
+    }
+
+    // 改变用户检测时排除的已检测标签
+    if(isset($_POST['nolabels'])){
+        $userNoLabels = implode(',', $_POST['nolabels']);
+        $db->updateUserNoLabels($_SESSION['userId'], $userNoLabels);
+        $_SESSION['userNoLabels'] = $userNoLabels;
+    }
+    if(!isset($_SESSION['userNoLabels'])){
+        $_SESSION['userNoLabels'] = '';
     }
 
     // 储存/更改检测结果

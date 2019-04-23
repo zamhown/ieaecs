@@ -88,7 +88,7 @@ $db->close();
     </table>
     <br>
     <hr>
-    <p><a href="../index.php">返回</a></p>
+    <p><a href="total-info-data.php">返回</a></p>
 </body>
 
 </html>
