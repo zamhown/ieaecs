@@ -247,41 +247,44 @@ class DataManager{
             $data = $this->getData("SELECT
             placeholder.id,
             count(DISTINCT user_result.result_id) uc,
-            sum(result.agree_count+result.disagree_count) hot
+            sum(result.agree_count+result.disagree_count) hot,
+            sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels)) njc
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
             INNER JOIN user_result ON user_result.result_id=result.id
             LEFT JOIN judge ON judge.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
             GROUP BY placeholder.id
-            HAVING sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels))=0
+            HAVING njc = 0 OR njc is NULL
             ORDER BY uc DESC, hot, placeholder.data_id
             LIMIT $limit");
         }else if($type==1){  // 检测分歧
             $data = $this->getData("SELECT
             placeholder.id,
             count(DISTINCT user_result.result_id) uc,
-            sum(result.agree_count+result.disagree_count) hot
+            sum(result.agree_count+result.disagree_count) hot,
+            sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels)) njc
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
             INNER JOIN user_result ON user_result.result_id=result.id
             LEFT JOIN judge ON judge.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
             GROUP BY placeholder.id
-            HAVING uc > 1 AND sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels))=0
+            HAVING uc > 1 AND (njc = 0 OR njc is NULL)
             ORDER BY uc DESC, hot, placeholder.data_id
             LIMIT $limit");
         }else if($type==2){  // 入库
             $data = $this->getData("SELECT
             placeholder.id,
-            count(DISTINCT user_result.result_id) uc
+            count(DISTINCT user_result.result_id) uc,
+            sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels)) njc
             FROM result
             INNER JOIN placeholder ON placeholder.id=result.ph_id
             INNER JOIN user_result ON user_result.result_id=result.id
             LEFT JOIN judge ON judge.result_id=result.id
             WHERE placeholder.prop_id IN ($userProps)
             GROUP BY placeholder.id
-            HAVING uc = 1 AND sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels))=0
+            HAVING uc = 1 AND (njc = 0 OR njc is NULL)
             ORDER BY placeholder.data_id
             LIMIT $limit");
         }else if($type==3){  // 优先选择全部属性将要抽取完成的样本
