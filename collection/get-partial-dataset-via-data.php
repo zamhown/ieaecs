@@ -3,6 +3,12 @@ include_once(dirname(__FILE__).'/../public/public.php');
 include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 include_once(dirname(__FILE__).'/../public/CharsetConv.class.php');
 
+if(!isset($_SESSION['userAdmin']) || !$_SESSION['userAdmin']) {
+    echo "权限不足！";
+    echo '<br><br><a href="../index.php">返回</a>';
+    exit();
+}
+
 $db = new DataManager();
 $data = $db->getProps();
 $props = array();
@@ -50,7 +56,7 @@ if(!create_folders($filepath)){
     echo '<br><br><a href="../input.php">返回</a>';
     exit();
 }
-$filename = "$filepath/partial-dataset.csv";
+$filename = "$filepath/partial-dataset-".implode('-', $userProps).".csv";
 $csv = fopen($filename, "w");
 $cc = new CharsetConv('utf-8', 'utf-8bom');  // 加bom解决csv乱码问题
 fwrite($csv, $cc->convert(implode("\r\n", $csvData)));

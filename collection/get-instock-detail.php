@@ -3,6 +3,12 @@ include_once(dirname(__FILE__).'/../public/public.php');
 include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 include_once(dirname(__FILE__).'/../public/CharsetConv.class.php');
 
+if(!isset($_SESSION['userAdmin']) || !$_SESSION['userAdmin']) {
+    echo "权限不足！";
+    echo '<br><br><a href="../index.php">返回</a>';
+    exit();
+}
+
 if(isset($_GET['propid']) && $_GET['propid']){
     $propId = $_GET['propid'];
     $db = new DataManager();

@@ -66,11 +66,16 @@ class DataManager{
         $this->pdo = null;
     }
 
-    public function login($uname){
+    public function login($uname, $cardNo){
+        $_SESSION['userAdmin'] = false;
         $id = -1;
         $data = $this->getData("SELECT * FROM user where uname='$uname'");
         if(count($data)){
             $id = $data[0]['id'];
+            // 验证学号和管理员标签
+            if(trim($cardNo)==$data[0]['cardno'] && $data[0]['admin']=='1'){
+                $_SESSION['userAdmin'] = true;
+            }
         }else{
             $rt = $this->changeData("INSERT INTO user (uname) values('$uname')");
             if($rt){
@@ -319,12 +324,13 @@ class DataManager{
                     foreach($userPropsArr as $p){
                         if(!isset($dataDic[$d][$p])){
                             $phData = $this->getData("SELECT
-                            placeholder.id
+                            placeholder.id,
+                            sum(judge.user_id=$userId OR judge.label_id IN ($userNoLabels)) njc
                             FROM placeholder
                             INNER JOIN result ON result.ph_id = placeholder.id
                             LEFT JOIN judge ON judge.result_id = result.id
                             WHERE placeholder.data_id=$d AND placeholder.prop_id=$p
-                            GROUP BY placeholder.id HAVING sum(judge.label_id IN ($userNoLabels))=0");
+                            GROUP BY placeholder.id HAVING njc = 0 OR njc is NULL");
                             if(count($phData)){
                                 $phId = $phData[0]['id'];
                                 array_push($data, array(

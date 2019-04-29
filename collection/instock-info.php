@@ -36,7 +36,7 @@ $db->close();
             <tr>
                 <th>序号</th>
                 <th>属性</th>
-                <th>待入库条数</th>
+                <th>需入库条数</th>
                 <th>已入库条数</th>
                 <th>处理率</th>
                 <th>详细报告</th>

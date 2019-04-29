@@ -2,6 +2,12 @@
 include_once(dirname(__FILE__).'/../public/public.php');
 include_once(dirname(__FILE__).'/../public/DataManager.class.php');
 
+if(!isset($_SESSION['userAdmin']) || !$_SESSION['userAdmin']) {
+    echo "权限不足！";
+    echo '<br><br><a href="../index.php">返回</a>';
+    exit();
+}
+
 $db = new DataManager();
 $uploads = $db->getUserUploads($_SESSION['userId']);
 $db->close();

@@ -11,7 +11,7 @@ if(!$hasPost && !isset($_SESSION['userName'])){
 
 $db = new DataManager();
 if($hasPost){
-    $db->login($_POST['userName']);
+    $db->login($_POST['userName'], $_POST['cardNo']);
 }
 $userJudgeCount = $db->getUserJudgeCount($_SESSION['userId']);
 
@@ -104,7 +104,7 @@ $db->close();
         <a href="user/judge-record.php">检测记录</a>&nbsp;&nbsp;&nbsp;
         <a href="user/star-record.php">我的收藏</a>&nbsp;&nbsp;&nbsp;
         <a href="user/results.php">我的抽取</a>&nbsp;&nbsp;&nbsp;
-        <a href="data/input.php">数据录入</a>
+        <?php if($_SESSION['userAdmin']) { ?><a href="data/input.php">数据录入</a><?php } ?>
     </p>
     <p>
         <a href="collection/total-info-data.php">查看数据集</a>&nbsp;&nbsp;&nbsp;

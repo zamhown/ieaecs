@@ -11,7 +11,7 @@
  Target Server Version : 50553
  File Encoding         : 65001
 
- Date: 23/04/2019 11:08:11
+ Date: 29/04/2019 20:17:45
 */
 
 SET NAMES utf8mb4;
@@ -46,10 +46,10 @@ CREATE TABLE `judge`  (
   INDEX `label_id`(`label_id`) USING BTREE,
   INDEX `result_id`(`result_id`) USING BTREE,
   INDEX `result_id_user_id`(`result_id`, `user_id`) USING BTREE,
+  CONSTRAINT `judge_label_id` FOREIGN KEY (`label_id`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
   CONSTRAINT `judge_result_id` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `judge_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `judge_label_id` FOREIGN KEY (`label_id`) REFERENCES `label` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 70442 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '检测记录' ROW_FORMAT = Compact;
+  CONSTRAINT `judge_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB AUTO_INCREMENT = 121637 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '检测记录' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for label
@@ -108,7 +108,7 @@ CREATE TABLE `result`  (
   INDEX `text_crc`(`text_crc`) USING BTREE,
   INDEX `ph_id_text_crc`(`ph_id`, `text_crc`) USING BTREE,
   CONSTRAINT `result_ph_id` FOREIGN KEY (`ph_id`) REFERENCES `placeholder` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 550638 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '全部已标注待检测的结果' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 550885 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '全部已标注待检测的结果' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for star
@@ -151,8 +151,10 @@ CREATE TABLE `user`  (
   `password` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '用户密码',
   `props` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '用户擅长的属性id列表',
   `nolabels` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '用户检测时排除的已检测标签',
+  `admin` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否是管理员',
+  `cardno` varchar(10) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '学号',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '用户信息' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '用户信息' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for user_result
@@ -176,7 +178,7 @@ CREATE TABLE `user_result`  (
   CONSTRAINT `user_result_result_id` FOREIGN KEY (`result_id`) REFERENCES `result` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_upload_id` FOREIGN KEY (`upload_id`) REFERENCES `upload` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_result_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 1952073 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '所有用户的标注结果' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1952359 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci COMMENT = '所有用户的标注结果' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- View structure for judge_type_1
